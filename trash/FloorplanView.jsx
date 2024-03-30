@@ -6,9 +6,8 @@ import * as THREE from "three";
 const z = 0.0001;
 
 export default function FloorplanView() {
-  const testFunction = event => {};
   return (
-    <Canvas orthographic camera={{ near: 0.1, far: 200, zoom: 100 }} onClick={testFunction}>
+    <Canvas orthographic camera={{ near: 0.1, far: 200, zoom: 100 }}>
       <Circle />
       <MapControls enableZoom={false} screenSpacePanning mouseButtons={{ LEFT: THREE.MOUSE.PAN }} />
       <Grid
@@ -39,7 +38,6 @@ function Circle() {
   });
 
   const getPositions = ({ camera, pointer }) => {
-    console.log("click");
     if (!pos1.x) {
       const vector = new THREE.Vector3(pointer.x, pointer.y, 0);
       vector.unproject(camera);
