@@ -1,46 +1,46 @@
 import { useEffect, useState, useRef } from "react";
+import * as UTILS from "./utils.js";
 
-export default function FloorplanEditor({ handleStateUpdate, globalElements }) {
+const previewSnapTolerance = 7;
+
+export default function FloorplanEditor({ elements, setElements }) {
   const canvasRef = useRef();
   const [drawing, setDrawing] = useState(false);
-  const [elements, setElements] = useState(globalElements);
   const [preview, setPreview] = useState({});
 
-  const functionHandler = data => {
-    handleStateUpdate(data);
-  };
+  const elementsRef = useRef(elements);
+  useEffect(() => {
+    elementsRef.current = elements;
+  }, [elements]);
 
   // Esc key detection
   const handleKeyPress = e => {
     if (e.key === "Escape") {
       if (drawing) {
-        console.log("test");
         setDrawing(false);
         setPreview({});
       }
     }
   };
 
+  // Handle resize
   useEffect(() => {
+    const handleResize = () => {
+      canvasRef.current.width = window.innerWidth;
+      canvasRef.current.height = window.innerHeight;
+      draw();
+    };
+
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      console.log("unmount");
-      functionHandler(elements);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   // Editor changes
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawGrid(ctx);
-    drawPreview(ctx);
-
-    // Draw walls
-    elements.forEach(element => {
-      drawWalls(ctx, element);
-    });
+    draw();
   }, [preview, elements, drawing]);
 
   //
@@ -57,6 +57,21 @@ export default function FloorplanEditor({ handleStateUpdate, globalElements }) {
       ctx.lineTo(ctx.canvas.width, y);
     }
     ctx.stroke();
+  };
+
+  const draw = () => {
+    const canvas = canvasRef.current;
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawGrid(ctx);
+    drawPreview(ctx);
+
+    // Draw walls
+    elementsRef.current.forEach(element => {
+      drawWalls(ctx, element);
+    });
   };
 
   const drawPreview = ctx => {
@@ -80,23 +95,26 @@ export default function FloorplanEditor({ handleStateUpdate, globalElements }) {
     ctx.lineWidth = 1;
   };
 
-  const handleMouseClick = e => {
+  const handleMouseClick = ({ clientX, clientY }) => {
     if (!drawing) {
       setDrawing(true);
-      const { clientX, clientY } = e;
-      setPreview(CreateElement(clientX, clientY, clientX, clientY));
+      setPreview({ x1: clientX, y1: clientY, x2: clientX, y2: clientY });
     } else {
-      setDrawing(false);
       setElements(prevState => [...prevState, preview]);
-      setPreview({});
+      setPreview(prevPreview => ({
+        x1: prevPreview.x2,
+        y1: prevPreview.y2,
+        x2: clientX,
+        y2: clientY,
+      }));
     }
   };
 
-  const handleMouseMove = e => {
+  const handleMouseMove = ({ clientX, clientY }) => {
     if (!drawing) return;
-    const { clientX, clientY } = e;
     const { x1, y1 } = preview;
-    setPreview(CreateElement(x1, y1, clientX, clientY));
+    const { x2, y2 } = snapToAngle(x1, y1, clientX, clientY);
+    setPreview({ x1, y1, x2, y2 });
   };
 
   return (
@@ -113,6 +131,10 @@ export default function FloorplanEditor({ handleStateUpdate, globalElements }) {
   );
 }
 
-const CreateElement = (x1, y1, x2, y2) => {
-  return { x1, y1, x2, y2 };
+const snapToAngle = (x1, y1, x2, y2) => {
+  const dx = Math.abs(x2 - x1);
+  const dy = Math.abs(y2 - y1);
+  if (dx < previewSnapTolerance) return { x2: x1, y2 };
+  if (dy < previewSnapTolerance) return { x2, y2: y1 };
+  return { x2, y2 };
 };
