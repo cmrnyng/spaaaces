@@ -110,7 +110,6 @@ export default function FloorplanEditor({ walls, setWalls, corners, setCorners }
     let top = 0.5 - Math.ceil(ctx.canvas.height / step) * step;
     let right = 2 * ctx.canvas.width;
     let bottom = 2 * ctx.canvas.height;
-    ctx.clearRect(left, top, right - left, bottom - top);
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let x = left; x < right; x += step) {
@@ -180,9 +179,9 @@ export default function FloorplanEditor({ walls, setWalls, corners, setCorners }
     if (mode === "move") {
       const wall = getWallAtPosition(clientX, clientY, walls);
       if (wall) {
+        setAction("moving");
         const offsetX = clientX - wall.x1;
         const offsetY = clientY - wall.y1;
-        setAction("moving");
         setSelectedWall({ ...wall, offsetX, offsetY });
       }
     }
@@ -199,7 +198,7 @@ export default function FloorplanEditor({ walls, setWalls, corners, setCorners }
     const { clientX, clientY } = getMouseCoordinates(e);
     setMouseMoved(true);
 
-    if (mouseDown) {
+    if (mouseDown && action !== "moving") {
       const deltaX = clientX - startPanMousePosition.x;
       const deltaY = clientY - startPanMousePosition.y;
 
