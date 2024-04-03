@@ -70,20 +70,26 @@ export default function FloorplanEditor() {
   const drawGrid = context => {
     context.beginPath();
     context.strokeStyle = "#ddd";
-    for (let x = panOffset.current.x; x <= context.canvas.width; x += 20) {
-      context.moveTo(x - panOffset.current.x, -panOffset.current.y);
-      context.lineTo(
-        x - panOffset.current.x,
-        context.canvas.height + Math.abs(panOffset.current.y)
-      );
+
+    const offsetX = panOffset.current.x;
+    const offsetY = panOffset.current.y;
+
+    for (let x = offsetX; x <= context.canvas.width; x += 20) {
+      context.moveTo(x - offsetX, -offsetY);
+      context.lineTo(x - offsetX, context.canvas.height + Math.abs(offsetY));
     }
-    for (
-      let y = -panOffset.current.y;
-      y <= context.canvas.height + Math.abs(panOffset.current.y);
-      y += 20
-    ) {
-      context.moveTo(-panOffset.current.x, y);
-      context.lineTo(context.canvas.width + Math.abs(panOffset.current.x), y);
+    for (let x = -offsetX + 20; x <= context.canvas.width; x += 20) {
+      context.moveTo(-x - offsetX, -offsetY);
+      context.lineTo(-x - offsetX, context.canvas.height + Math.abs(offsetY));
+    }
+
+    for (let y = offsetY; y <= context.canvas.height; y += 20) {
+      context.moveTo(-offsetX, y - offsetY);
+      context.lineTo(context.canvas.width + Math.abs(offsetX), y - offsetY);
+    }
+    for (let y = -offsetY + 20; y <= context.canvas.height; y += 20) {
+      context.moveTo(-offsetX, -y - offsetY);
+      context.lineTo(context.canvas.width + Math.abs(offsetX), -y - offsetY);
     }
     context.stroke();
   };
@@ -176,7 +182,6 @@ export default function FloorplanEditor() {
         x: panOffsetCopy.x + deltaX,
         y: panOffsetCopy.y + deltaY,
       };
-      console.log(`x: ${panOffset.current.x}, y: ${panOffset.current.y}`);
       draw();
     }
 
