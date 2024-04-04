@@ -8,56 +8,56 @@ import deleteIcon from "./assets/deleteicon.svg";
 const previewSnapTolerance = 7;
 const wallSnapTolerance = 7;
 
-// Grid parameters
-const gridSpacing = 20;
-const gridWidth = 1;
-const gridColour = "#ddd";
-
-// May be a good idea to combine multiple refs into one useRef, and destructure them when needed
 export default function FloorplanEditor() {
   console.log("floorplan render");
   const canvasRef = useRef();
-  const contextRef = useRef();
 
-  const walls = useRef([]);
-  const corners = useRef([]);
+  // const wallsRef = useRef(walls);
+  // const cornersRef = useRef(corners);
 
-  const panOffset = useRef({ x: 0, y: 0 });
-  const startPanMousePosition = useRef({ x: 0, y: 0 });
+  const [walls, setWalls] = useState([]);
+  const [corners, setCorners] = useState([]);
 
-  const [mode, setMode] = useState("draw"); // Fine
-  const action = useRef("none");
-  const preview = useRef({});
-  const selectedWall = useRef(null);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [startPanMousePosition, setStartPanMousePosition] = useState({ x: 0, y: 0 });
 
-  const mouseDown = useRef(false);
-  const mouseMoved = useRef(false);
+  const [mode, setMode] = useState("draw");
+  const [action, setAction] = useState("none");
+  const [preview, setPreview] = useState({});
+  const [selectedWall, setSelectedWall] = useState(null);
+  // const [nodes, setNodes] = useState([]);
+  const [mouseDown, setMouseDown] = useState(false);
+  const [mouseMoved, setMouseMoved] = useState(false);
 
-  const originX = useRef(0);
-  const originY = useRef(0);
+  // useEffect(() => {
+  //   wallsRef.current = walls;
+  // }, [walls]);
 
   // Esc key detection
   const handleKeyPress = e => {
     if (e.key === "Escape") {
-      if (action.current === "drawing") {
-        action.current = "none";
-        preview.current = {};
-        draw();
+      if (action === "drawing") {
+        setAction("none");
+        setPreview({});
       }
     }
   };
 
-  // Handle resizing
   const handleResize = () => {
     canvasRef.current.width = window.innerWidth;
     canvasRef.current.height = window.innerHeight;
+
+    setPanOffset(prevState => ({
+      x: prevState.x,
+      y: prevState.y,
+    }));
     draw();
   };
 
+  // Handle resize
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    contextRef.current = context;
 
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -67,48 +67,75 @@ export default function FloorplanEditor() {
     };
   }, []);
 
+  // Mouse scrolling
+  // useEffect(() => {
+  //   const panFunction = e => {
+  //     setPanOffset(prevState => ({
+  //       x: prevState.x - e.deltaX,
+  //       y: prevState.y - e.deltaY,
+  //     }));
+  //   };
+
+  //   window.addEventListener("wheel", panFunction);
+
+  //   return () => {
+  //     window.removeEventListener("wheel", panFunction);
+  //   };
+  // }, []);
+
+  // Editor changes
+  useEffect(() => {
+    draw();
+  }, [preview, walls, panOffset]);
+
+  // const drawGrid = context => {
+  //   context.beginPath();
+  //   context.strokeStyle = "#ddd";
+  //   for (let x = 0; x <= context.canvas.width; x += 20) {
+  //     context.moveTo(x, 0);
+  //     context.lineTo(x, context.canvas.height);
+  //   }
+  //   for (let y = 0; y <= context.canvas.height; y += 20) {
+  //     context.moveTo(0, y);
+  //     context.lineTo(context.canvas.width, y);
+  //   }
+  //   context.stroke();
+  // };
+
   const drawGrid = context => {
+    let step = 20;
+    let left = 0.5 - Math.ceil(context.canvas.width / step) * step;
+    let top = 0.5 - Math.ceil(context.canvas.height / step) * step;
+    let right = 2 * context.canvas.width;
+    let bottom = 2 * context.canvas.height;
+    context.lineWidth = 1;
     context.beginPath();
+    for (let x = left; x < right; x += step) {
+      context.moveTo(x, top);
+      context.lineTo(x, bottom);
+    }
+    for (let y = top; y < bottom; y += step) {
+      context.moveTo(left, y);
+      context.lineTo(right, y);
+    }
     context.strokeStyle = "#ddd";
-
-    const offsetX = panOffset.current.x;
-    const offsetY = panOffset.current.y;
-
-    for (let x = offsetX; x <= context.canvas.width; x += 20) {
-      context.moveTo(x - offsetX, -offsetY);
-      context.lineTo(x - offsetX, context.canvas.height + Math.abs(offsetY));
-    }
-    for (let x = -offsetX + 20; x <= context.canvas.width; x += 20) {
-      context.moveTo(-x - offsetX, -offsetY);
-      context.lineTo(-x - offsetX, context.canvas.height + Math.abs(offsetY));
-    }
-
-    for (let y = offsetY; y <= context.canvas.height; y += 20) {
-      context.moveTo(-offsetX, y - offsetY);
-      context.lineTo(context.canvas.width + Math.abs(offsetX), y - offsetY);
-    }
-    for (let y = -offsetY + 20; y <= context.canvas.height; y += 20) {
-      context.moveTo(-offsetX, -y - offsetY);
-      context.lineTo(context.canvas.width + Math.abs(offsetX), -y - offsetY);
-    }
     context.stroke();
   };
 
   const draw = () => {
     const canvas = canvasRef.current;
-    // const context = canvas.getContext("2d");
-    const context = contextRef.current;
+    const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     context.save();
 
-    context.translate(panOffset.current.x, panOffset.current.y);
+    context.translate(panOffset.x, panOffset.y);
 
     drawGrid(context);
     mode === "draw" && drawPreview(context);
 
     // Draw walls
-    walls.current.forEach(wall => {
+    walls.forEach(wall => {
       drawWalls(context, wall);
     });
 
@@ -126,7 +153,7 @@ export default function FloorplanEditor() {
   };
 
   const drawPreview = context => {
-    const { x1, y1, x2, y2 } = preview.current;
+    const { x1, y1, x2, y2 } = preview;
     drawLine(context, x1, y1, x2, y2, 6, "blue");
   };
 
@@ -135,116 +162,108 @@ export default function FloorplanEditor() {
   };
 
   const getMouseCoordinates = e => {
-    const clientX = e.clientX - panOffset.current.x;
-    const clientY = e.clientY - panOffset.current.y;
+    const clientX = e.clientX - panOffset.x;
+    const clientY = e.clientY - panOffset.y;
     return { clientX, clientY };
   };
 
   const handleMouseDown = e => {
     if (e.button === 1 || e.button === 2 || e.button === 3) return;
     const { clientX, clientY } = getMouseCoordinates(e);
-    mouseDown.current = true;
-    mouseMoved.current = false;
-    startPanMousePosition.current = { x: clientX, y: clientY };
+    setMouseDown(true);
+    setMouseMoved(false);
+    setStartPanMousePosition({ x: clientX, y: clientY });
 
     if (mode === "move") {
-      const wall = getWallAtPosition(clientX, clientY, walls.current);
+      const wall = getWallAtPosition(clientX, clientY, walls);
       if (wall) {
-        action.current = "moving";
+        setAction("moving");
         const offsetX = clientX - wall.x1;
         const offsetY = clientY - wall.y1;
-        selectedWall.current = { ...wall, offsetX, offsetY };
+        setSelectedWall({ ...wall, offsetX, offsetY });
       }
     }
 
     if (mode === "delete") {
-      const wall = getWallAtPosition(clientX, clientY, walls.current);
+      const wall = getWallAtPosition(clientX, clientY, walls);
       if (wall) {
-        walls.current = deleteWall(wall.id, walls.current);
-        draw();
+        setWalls(deleteWall(wall.id, walls));
       }
     }
   };
 
   const handleMouseMove = e => {
     const { clientX, clientY } = getMouseCoordinates(e);
-    mouseMoved.current = true;
+    setMouseMoved(true);
 
-    if (mouseDown.current && action.current !== "moving") {
-      const deltaX = clientX - startPanMousePosition.current.x;
-      const deltaY = clientY - startPanMousePosition.current.y;
+    if (mouseDown && action !== "moving") {
+      const deltaX = clientX - startPanMousePosition.x;
+      const deltaY = clientY - startPanMousePosition.y;
 
-      originX.current += startPanMousePosition.current.x - clientX;
-      originY.current += startPanMousePosition.current.y - clientY;
-
-      const panOffsetCopy = { ...panOffset.current };
-      panOffset.current = {
-        x: panOffsetCopy.x + deltaX,
-        y: panOffsetCopy.y + deltaY,
-      };
-      draw();
+      setPanOffset(prevState => ({
+        x: prevState.x + deltaX,
+        y: prevState.y + deltaY,
+      }));
     }
 
-    if (action.current === "drawing" && mode === "draw") {
-      const { x1, y1 } = preview.current;
+    if (action === "drawing" && mode === "draw") {
+      const { x1, y1 } = preview;
       var { x2, y2 } = snapToAngle(x1, y1, clientX, clientY);
-      preview.current = { x1, y1, x2, y2 };
-      draw();
-    } else if (action.current === "moving" && mode === "move") {
-      const { id, x1, y1, x2, y2, offsetX, offsetY } = selectedWall.current;
+      setPreview({ x1, y1, x2, y2 });
+    } else if (action === "moving" && mode === "move") {
+      const { id, x1, y1, x2, y2, offsetX, offsetY } = selectedWall;
       const newX1 = clientX - offsetX;
       const newY1 = clientY - offsetY;
       updateWall(id, newX1, newY1, newX1 + (x2 - x1), newY1 + (y2 - y1));
-      draw();
     }
   };
 
   const handleMouseUp = e => {
     if (e.button === 1 || e.button === 2 || e.button === 3) return;
     const { clientX, clientY } = getMouseCoordinates(e);
-    mouseDown.current = false;
+    setMouseDown(false);
 
-    if (mode === "draw" && !mouseMoved.current) {
-      if (action.current !== "drawing") {
-        action.current = "drawing";
-        preview.current = { x1: clientX, y1: clientY, x2: clientX, y2: clientY };
-      } else if (action.current === "drawing") {
+    if (mode === "draw" && !mouseMoved) {
+      if (action !== "drawing") {
+        setAction("drawing");
+        setPreview({ x1: clientX, y1: clientY, x2: clientX, y2: clientY });
+      } else if (action === "drawing") {
         const id = uuidv4();
-        corners.current.push(
-          { x: preview.current.x1, y: preview.current.y1, id: uuidv4() },
-          { x: preview.current.x2, y: preview.current.y2, id: uuidv4() }
-        );
-        walls.current.push({ id, ...preview.current });
-
-        const previewCopy = { ...preview.current };
-        preview.current = { x1: previewCopy.x2, y1: previewCopy.y2, x2: clientX, y2: clientY };
+        setCorners(prevState => [
+          ...prevState,
+          { x: preview.x1, y: preview.y1, id: uuidv4() },
+          { x: preview.x2, y: preview.y2, id: uuidv4() },
+        ]);
+        setWalls(prevState => [...prevState, { id, ...preview }]);
+        setPreview(prevPreview => ({
+          x1: prevPreview.x2,
+          y1: prevPreview.y2,
+          x2: clientX,
+          y2: clientY,
+        }));
       }
     }
     if (mode === "move") {
-      action.current = "none";
-      selectedWall.current = null;
+      setAction("none");
+      setSelectedWall(null);
     }
-  };
-
-  const handleMouseLeave = e => {
-    mouseDown.current = false;
   };
 
   const updateWall = (id, x1, y1, x2, y2) => {
     const updatedWall = { id, x1, y1, x2, y2 };
 
-    const updatedWalls = walls.current.map(wall => {
+    const updatedWalls = walls.map(wall => {
       if (wall.id === id) return updatedWall;
       return wall;
     });
 
-    walls.current = updatedWalls;
+    setWalls(updatedWalls);
   };
 
   const changeMode = newMode => {
     setMode(newMode);
-    action.current = "none";
-    preview.current = {};
+    setAction("none");
+    setPreview({});
   };
 
   return (
@@ -281,7 +300,6 @@ export default function FloorplanEditor() {
         onMouseMove={handleMouseMove}
         onKeyDown={handleKeyPress}
         onContextMenu={e => e.preventDefault()}
-        onMouseLeave={handleMouseLeave}
         tabIndex={0}
       />
     </>
@@ -317,23 +335,4 @@ const getWallAtPosition = (x, y, walls) => {
 
 const deleteWall = (id, walls) => {
   return walls.filter(wall => wall.id !== id);
-};
-
-// const calculateGridOffset = n => {
-//   if (n >= 0) {
-//     return ((n + gridSpacing / 2) % gridSpacing) - gridSpacing / 2;
-//   } else {
-//     return ((n - gridSpacing / 2) % gridSpacing) + gridSpacing / 2;
-//   }
-// };
-
-const calculateGridOffset = (n, canvasSize) => {
-  if (n >= 0) {
-    return ((n + gridSpacing / 2) % gridSpacing) - (gridSpacing / 2 - (n % canvasSize));
-  } else {
-    return (
-      ((n - gridSpacing / 2) % gridSpacing) +
-      (gridSpacing / 2 + (canvasSize - Math.abs(n % canvasSize)))
-    );
-  }
 };
