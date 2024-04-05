@@ -7,7 +7,6 @@ import deleteIcon from "./assets/deleteicon.svg";
 
 const previewSnapTolerance = 7;
 const wallSnapTolerance = 7;
-const globalSnapTolerance = 5;
 
 // Grid parameters
 const gridSpacing = 20;
@@ -30,7 +29,8 @@ export default function FloorplanEditor() {
 	const [mode, setMode] = useState("draw"); // Fine
 	const action = useRef("none");
 	const preview = useRef({});
-	const selectedElement = useRef(null);
+	const selectedWall = useRef(null);
+	const selecedElement = useRef(null);
 	const hoveredElement = useRef(null);
 
 	const mouseDown = useRef(false);
@@ -179,26 +179,20 @@ export default function FloorplanEditor() {
 		startPanMousePosition.current = { x: clientX, y: clientY };
 
 		if (mode === "move") {
-			const obj = getElementAtPosition(clientX, clientY);
-			if (obj) {
+			const { element, type } = getElementAtPosition(clientX, clientY) || {};
+			if (type === "wall") {
+				const wall = convertWall(element);
 				action.current = "moving";
-				if (obj.type === "wall") {
-					const wall = convertWall(obj.element);
-					const offsetX = clientX - wall.start.x;
-					const offsetY = clientY - wall.start.y;
-					selectedElement.current = { ...obj, offsetX, offsetY };
-				} else if (obj.type === "corner") {
-					const offsetX = clientX - obj.element.x;
-					const offsetY = clientY - obj.element.y;
-					selectedElement.current = { ...obj, offsetX, offsetY };
-				}
+				const offsetX = clientX - wall.start.x;
+				const offsetY = clientY - wall.start.y;
+				selectedWall.current = { ...wall, offsetX, offsetY };
 			}
 		}
 
 		if (mode === "delete") {
-			const obj = getElementAtPosition(clientX, clientY);
-			if (obj) {
-				deleteElement(obj);
+			const { element, type } = getElementAtPosition(clientX, clientY) || {};
+			if (type === "wall") {
+				deleteWall(element);
 				hoverCheck(clientX, clientY);
 			}
 		}
@@ -229,10 +223,10 @@ export default function FloorplanEditor() {
 			preview.current = { x1, y1, x2, y2 };
 			draw();
 		} else if (action.current === "moving" && mode === "move") {
-			const { element, type, offsetX, offsetY } = selectedElement.current;
+			const { start, end, id, offsetX, offsetY } = selectedWall.current;
 			const newX1 = clientX - offsetX;
 			const newY1 = clientY - offsetY;
-			updateElement(element, type, newX1, newY1);
+			updateWall(newX1, newY1, newX1 + (end.x - start.x), newY1 + (end.y - start.y), id);
 			draw();
 		}
 
@@ -279,7 +273,7 @@ export default function FloorplanEditor() {
 		}
 		if (mode === "move") {
 			action.current = "none";
-			selectedElement.current = null;
+			selectedWall.current = null;
 		}
 	};
 
@@ -302,8 +296,16 @@ export default function FloorplanEditor() {
 	};
 
 	const isWithinCorner = (mouseX, mouseY, { x, y }) => {
-		return UTILS.distance(mouseX, mouseY, x, y) < 10;
+		return UTILS.distance(mouseX, mouseY, x, y) < 5;
 	};
+
+	// const getWallAtPosition = (x, y) => {
+	// 	return walls.current.find((wall) => isWithinWall(x, y, convertWall(wall)));
+	// };
+
+	// const getCornerAtPosition = (x, y) => {
+	// 	return corners.current.find((corner) => isWithinCorner(x, y, corner));
+	// };
 
 	const getElementAtPosition = (x, y) => {
 		const wallFound = walls.current.find((wall) => isWithinWall(x, y, convertWall(wall)));
@@ -319,93 +321,60 @@ export default function FloorplanEditor() {
 	};
 
 	const hoverCheck = (clientX, clientY) => {
-		const obj = getElementAtPosition(clientX, clientY);
-		if (obj) {
-			hoveredElement.current = obj;
+		const value = getElementAtPosition(clientX, clientY);
+		if (value) {
+			hoveredElement.current = value;
 		} else {
 			hoveredElement.current = null;
 		}
 		draw();
 	};
 
-	const updateElement = (element, type, newX1, newY1) => {
-		if (type === "wall") {
-			const wall = convertWall(element);
-			const { start, end } = wall;
-			const wallToUpdate = walls.current.find((wall) => wall.id === element.id);
+	const updateWall = (x1, y1, x2, y2, wallId) => {
+		// find wall using id
+		const wallToUpdate = walls.current.find((wall) => wall.id === wallId);
+		// need to update corners
+		const startCorner = findCorner(wallToUpdate.startId);
+		const endCorner = findCorner(wallToUpdate.endId);
 
-			const startCorner = findCorner(wallToUpdate.startId);
-			const endCorner = findCorner(wallToUpdate.endId);
+		const updatedCorners = corners.current.map((corner) => {
+			if (corner.id === startCorner.id) return { x: x1, y: y1, id: startCorner.id };
+			if (corner.id === endCorner.id) return { x: x2, y: y2, id: endCorner.id };
+			return corner;
+		});
 
-			const updatedCorners = corners.current.map((corner) => {
-				if (corner.id === startCorner.id) return { x: newX1, y: newY1, id: startCorner.id };
-				if (corner.id === endCorner.id)
-					return { x: newX1 + (end.x - start.x), y: newY1 + (end.y - start.y), id: endCorner.id };
-				return corner;
-			});
-			corners.current = updatedCorners;
-		} else if (type === "corner") {
-			const cornerToUpdate = findCorner(element.id);
-
-			const updatedCorners = corners.current.map((corner) => {
-				if (corner.id === cornerToUpdate.id) return { x: newX1, y: newY1, id: corner.id };
-				return corner;
-			});
-			corners.current = updatedCorners;
-		}
+		corners.current = updatedCorners;
 	};
 
-	const deleteElement = ({ element, type }) => {
-		const id = element.id;
-		if (type === "wall") {
-			const updatedWalls = walls.current.filter((wall) => wall.id !== id);
-			walls.current = updatedWalls;
-			const updatedCorners = corners.current.filter((corner) => {
-				if (!isCornerInOtherWalls(corner.id)) {
-					if (corner.id === element.startId || corner.id === element.endId) return false;
+	const deleteWall = (wall) => {
+		const id = wall.id;
+		const updatedWalls = walls.current.filter((wall) => wall.id !== id);
+		walls.current = updatedWalls;
+
+		const updatedCorners = corners.current.filter((corner) => {
+			if (!isCornerInOtherWalls(corner.id)) {
+				if (corner.id === wall.startId || corner.id === wall.endId) {
+					return false;
 				}
-				return true;
-			});
-			corners.current = updatedCorners;
-		} else if (type === "corner") {
-			walls.current.map((wall) => {
-				if (wall.startId === id || wall.endId === id)
-					deleteElement({ element: wall, type: "wall" });
-			});
-			const updatedCorners = corners.current.filter((corner) => corner.id !== id);
-			corners.current = updatedCorners;
-		}
+			}
+			return true;
+		});
+		corners.current = updatedCorners;
 	};
 
-	// const snapCorners = () => {
-	// 	if (corners.current.length < 3) return;
-	// 	const corners = [...corners.current];
-	// 	for (let i = 0; i < corners.length; i++) {
-	// 		const corner1 = corners[i];
-	// 		for (let j = i + 1; j < corners.length; j++) {
-	// 			const corner2 = corners[j];
-	// 			const distance = UTILS.distance(corner1.x, corner1.y, corner2.x, corner2.y);
-	// 			if (distance < globalSnapTolerance) {
-	// 				// Corner you're moving / placing should be deleted, and selectedElement should become the corner where
-	// 				// distance < globalSnapTolerance. Need a way to tell which corner is being moved. Something like
-	// 				// if selectedElement is of type corner, and is equal to corner1 or corner2, then delete the corner it is not
-	// 				// equal to.
-	// 				//
-	// 				// OR corner you're moving / placing should have its position set to the corner it's close to, and the previous
-	// 				// corner should be deleted.
-	// 				//
-	// 				// When drawing, how would I handle it? In this case, corner2 should be the corner which was just drawn, so I can
-	// 				// set corner2's x and y values to corner1's, and delete corner1.
-	// 				var updatedCorners = corners.current.map((corner) => {
-	// 					if (corner.id === corner2.id) return { x: corner1.x, y: corner1.y, id: corner.id };
-	// 					return corner;
-	// 				});
-	// 				updatedCorners = updatedCorners.filter((corner) => corner.id !== corner1.id);
-	// 				corners.current = updatedCorners;
-	// 			}
-	// 		}
-	// 	}
-	// };
+	const deleteCorner = (id) => {
+		const updatedCorners = corners.current.filter((corner) => corner.id !== id);
+
+		const updatedWalls = walls.current.filter((wall) => {
+			if (wall.startId === id || wall.endId === id) {
+				return false;
+			}
+			return true;
+		});
+
+		corners.current = updatedCorners;
+		walls.current = updatedWalls;
+	};
 
 	const isCornerInOtherWalls = (id) => {
 		return walls.current.some((wall) => wall.startId === id || wall.endId === id);
