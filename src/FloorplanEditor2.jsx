@@ -32,6 +32,8 @@ export default function FloorplanEditor() {
   const preview = useRef({});
   const selectedElement = useRef(null);
   const hoveredElement = useRef(null);
+  const activeCorner = useRef(null);
+  const activeWall = useRef(null);
 
   const mouseDown = useRef(false);
   const mouseMoved = useRef(false);
@@ -172,42 +174,63 @@ export default function FloorplanEditor() {
     return { clientX, clientY };
   };
 
+  // const updateTarget = (clientX, clientY) => {
+  //   if (mode === "draw" && lastCorner.current) {
+  //     if (Math.abs(clientX - lastCorner.current.x) < previewSnapTolerance) {
+  //       preview.current.end.x =
+  //     }
+  //   }
+  // };
+
+  const snapToAxis = targetCorner => {
+    console.log("wip");
+  };
+
   const handleMouseDown = e => {
     if (e.button === 1 || e.button === 2 || e.button === 3) return;
     const { clientX, clientY } = getMouseCoordinates(e);
     mouseDown.current = true;
     mouseMoved.current = false;
     startPanMousePosition.current = { x: clientX, y: clientY };
-
-    if (mode === "move") {
-      const obj = getElementAtPosition(clientX, clientY);
-      if (obj) {
-        action.current = "moving";
-        if (obj.type === "wall") {
-          const wall = convertWall(obj.element);
-          const offsetX = clientX - wall.start.x;
-          const offsetY = clientY - wall.start.y;
-          selectedElement.current = { ...obj, offsetX, offsetY };
-        } else if (obj.type === "corner") {
-          const offsetX = clientX - obj.element.x;
-          const offsetY = clientY - obj.element.y;
-          selectedElement.current = { ...obj, offsetX, offsetY };
-        }
-      }
-    }
-
-    if (mode === "delete") {
-      const obj = getElementAtPosition(clientX, clientY);
-      if (obj) {
-        deleteElement(obj);
-        hoverCheck(clientX, clientY);
-      }
-    }
   };
 
   const handleMouseMove = e => {
     const { clientX, clientY } = getMouseCoordinates(e);
     mouseMoved.current = true;
+
+    // if (
+    //   (mode === "draw" && action.current === "drawing") ||
+    //   (mode === "move" && action.current === "moving")
+    // ) {
+    //   updateTarget(clientX, clientY);
+    // }
+
+    // Update object target
+    // if (mode !== "draw" && !mouseDown.current) {
+    //   const hoveredCorner = isWithinCorner(clientX, clientY);
+    //   const hoveredWall = isWithinWall(clientX, clientY);
+    //   if (hoveredCorner !== activeCorner.current) {
+    //     activeCorner.current = hoveredCorner;
+    //     draw();
+    //   }
+    //   if (activeCorner.current === null) {
+    //     if (hoveredWall !== activeWall.current) {
+    //       activeWall.current = hoveredWall;
+    //       draw();
+    //     }
+    //   } else {
+    //     activeWall.current = null;
+    //   }
+    // }
+
+    // Dragging
+    // if (action.current === "moving" && mode === "move") {
+    //   if (activeCorner.current) {
+    //     snapToAxis(activeCorner);
+    //   }
+    // }
+
+    // ...
 
     if (mouseDown.current && action.current !== "moving") {
       const deltaX = clientX - startPanMousePosition.current.x;
@@ -223,66 +246,12 @@ export default function FloorplanEditor() {
       };
       draw();
     }
-
-    if (action.current === "drawing" && mode === "draw") {
-      const { x1, y1 } = preview.current;
-      var { x2, y2 } = snapToAngle(x1, y1, clientX, clientY);
-      preview.current = { x1, y1, x2, y2 };
-      draw();
-    } else if (action.current === "moving" && mode === "move") {
-      const { element, type, offsetX, offsetY } = selectedElement.current;
-      const newX1 = type === "wall" ? clientX - offsetX : clientX;
-      const newY1 = type === "wall" ? clientY - offsetY : clientY;
-      updateElement(element, type, newX1, newY1);
-      // snapCorners();
-      draw();
-    }
-
-    if (mode === "move" || mode === "delete") {
-      hoverCheck(clientX, clientY);
-    }
   };
 
   const handleMouseUp = e => {
     if (e.button === 1 || e.button === 2 || e.button === 3) return;
     const { clientX, clientY } = getMouseCoordinates(e);
     mouseDown.current = false;
-
-    if (mode === "draw" && !mouseMoved.current) {
-      if (action.current !== "drawing") {
-        action.current = "drawing";
-        preview.current = { x1: clientX, y1: clientY, x2: clientX, y2: clientY };
-      } else if (action.current === "drawing") {
-        const startCornerId = uuidv4();
-        const endCornerId = uuidv4();
-
-        const startCorner = isEmpty(lastCorner.current)
-          ? { x: preview.current.x1, y: preview.current.y1, id: startCornerId }
-          : lastCorner.current;
-
-        const endCorner = { x: preview.current.x2, y: preview.current.y2, id: endCornerId };
-
-        isEmpty(lastCorner.current) && corners.current.push(startCorner);
-        corners.current.push(endCorner);
-
-        lastCorner.current = { x: preview.current.x2, y: preview.current.y2, id: endCornerId };
-
-        walls.current.push({
-          startId: startCorner.id,
-          endId: endCorner.id,
-          id: `${startCorner.id}-${endCorner.id}`,
-        });
-
-        // if 2 corners are next to each other (using a tolerance), the new corner should replace the old corner
-
-        const previewCopy = { ...preview.current };
-        preview.current = { x1: previewCopy.x2, y1: previewCopy.y2, x2: clientX, y2: clientY };
-      }
-    }
-    if (mode === "move") {
-      action.current = "none";
-      selectedElement.current = null;
-    }
   };
 
   // const snapAdjacent = () => {
@@ -379,15 +348,33 @@ export default function FloorplanEditor() {
     mouseDown.current = false;
   };
 
-  const isWithinWall = (x, y, { start, end }) => {
-    const diff =
-      UTILS.distance(start.x, start.y, end.x, end.y) -
-      (UTILS.distance(start.x, start.y, x, y) + UTILS.distance(end.x, end.y, x, y));
-    return Math.abs(diff) < 0.5;
+  // const isWithinWall = (x, y, { start, end }) => {
+  //   const diff =
+  //     UTILS.distance(start.x, start.y, end.x, end.y) -
+  //     (UTILS.distance(start.x, start.y, x, y) + UTILS.distance(end.x, end.y, x, y));
+  //   return Math.abs(diff) < 0.5;
+  // };
+
+  const isWithinWall = (x, y) => {
+    walls.current.forEach(wall => {
+      const w = convertWall(wall);
+      const diff =
+        UTILS.distance(w.start.x, w.start.y, w.end.x, w.end.y) -
+        (UTILS.distance(w.start.x, w.start.y, x, y) + UTILS.distance(w.end.x, w.end.y, x, y));
+      if (Math.abs(diff) < 0.5) return wall;
+    });
+    return null;
   };
 
-  const isWithinCorner = (mouseX, mouseY, { x, y }) => {
-    return UTILS.distance(mouseX, mouseY, x, y) < 10;
+  // const isWithinCorner = (mouseX, mouseY, { x, y }) => {
+  //   return UTILS.distance(mouseX, mouseY, x, y) < 10;
+  // };
+
+  const isWithinCorner = (x, y) => {
+    corners.current.forEach(corner => {
+      if (UTILS.distance(corner.x, corner.y, x, y) < 10) return corner;
+    });
+    return null;
   };
 
   const getElementAtPosition = (x, y) => {
