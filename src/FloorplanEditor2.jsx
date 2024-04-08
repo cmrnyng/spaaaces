@@ -8,6 +8,7 @@ import deleteIcon from "./assets/deleteicon.svg";
 const previewSnapTolerance = 7;
 const wallSnapTolerance = 7;
 const globalSnapTolerance = 10;
+const cornerSnapTolerance = 10;
 
 // Grid parameters
 const gridSpacing = 20;
@@ -54,7 +55,7 @@ export default function FloorplanEditor() {
 		if (e.key === "l") {
 			console.log(corners.current);
 			console.log(walls.current);
-			console.log(activeElement.current);
+			console.log(lastCorner.current);
 		}
 	};
 
@@ -116,14 +117,14 @@ export default function FloorplanEditor() {
 		context.translate(panOffset.current.x, panOffset.current.y);
 
 		drawGrid(context);
-		action.current === "drawing" && drawPreview(context);
 
 		// Draw walls
 		walls.current.forEach(wall => {
 			drawWalls(context, convertWall(wall));
 		});
 
-		if (activeElement.current) drawHover(context, activeElement.current);
+		action.current === "drawing" && drawPreview(context);
+		if (activeElement.current && mode !== "draw") drawHover(context, activeElement.current);
 
 		context.restore();
 	};
@@ -141,13 +142,14 @@ export default function FloorplanEditor() {
 	const drawCircle = (context, x, y, colour) => {
 		context.beginPath();
 		context.fillStyle = colour;
-		context.arc(x, y, 8, 0, 2 * Math.PI);
+		context.arc(x, y, 7, 0, 2 * Math.PI);
 		context.fill();
 	};
 
 	const drawPreview = context => {
 		const { start, end } = preview.current;
 		drawLine(context, start.x, start.y, end.x, end.y, 6, "blue");
+		drawCircle(context, end.x, end.y, "blue");
 	};
 
 	const drawHover = (context, { element, type }) => {
@@ -172,16 +174,22 @@ export default function FloorplanEditor() {
 		return { clientX, clientY };
 	};
 
-	// const updateTarget = (clientX, clientY) => {
-	//   if (mode === "draw" && lastCorner.current) {
-	//     if (Math.abs(clientX - lastCorner.current.x) < previewSnapTolerance) {
-	//       preview.current.end.x =
-	//     }
-	//   }
-	// };
-
 	const snapToAxis = activeCorner => {
-		corners.current.forEach(corner => {
+		let connectedWalls = walls.current.filter(
+			wall => activeCorner.id === wall.startId || activeCorner.id === wall.endId
+		);
+
+		if (activeElement.current.type === "wall") {
+			connectedWalls = connectedWalls.filter(wall => wall.id !== activeElement.current.element.id);
+		}
+
+		const adjCorners = [];
+		connectedWalls.forEach(wall => {
+			if (wall.startId !== activeCorner.id) adjCorners.push(findCorner(wall.startId));
+			if (wall.endId !== activeCorner.id) adjCorners.push(findCorner(wall.endId));
+		});
+
+		adjCorners.forEach(corner => {
 			if (corner.id === activeCorner.id) return;
 			if (Math.abs(corner.x - activeCorner.x) < globalSnapTolerance) {
 				activeCorner.x = corner.x;
@@ -190,15 +198,16 @@ export default function FloorplanEditor() {
 				activeCorner.y = corner.y;
 			}
 		});
-		updateToActive();
 	};
 
-	const snapToAxis2 = activeCorner => {
-		const dx = Math.abs(x2 - x1);
-		const dy = Math.abs(y2 - y1);
-		if (dx < previewSnapTolerance) return { x2: x1, y2 };
-		if (dy < previewSnapTolerance) return { x2, y2: y1 };
-		return { x2, y2 };
+	const movePreview = (clientX, clientY) => {
+		var [x1, y1] = [preview.current.start.x, preview.current.start.y];
+		var [x2, y2] = [clientX, clientY];
+
+		if (Math.abs(x2 - x1) < globalSnapTolerance) x2 = x1;
+		if (Math.abs(y2 - y1) < globalSnapTolerance) y2 = y1;
+
+		preview.current = { start: { x: x1, y: y1 }, end: { x: x2, y: y2 } };
 	};
 
 	const updateToActive = () => {
@@ -262,13 +271,6 @@ export default function FloorplanEditor() {
 		const { clientX, clientY } = getMouseCoordinates(e);
 		mouseMoved.current = true;
 
-		// if (
-		//   (mode === "draw" && action.current === "drawing") ||
-		//   (mode === "move" && action.current === "moving")
-		// ) {
-		//   updateTarget(clientX, clientY);
-		// }
-
 		// Update object target
 		if (mode !== "draw" && !mouseDown.current) {
 			activeElement.current = getElementAtPosition(clientX, clientY);
@@ -280,21 +282,24 @@ export default function FloorplanEditor() {
 			if (activeElement.current && activeElement.current.type === "corner") {
 				move(clientX, clientY);
 				snapToAxis(activeElement.current.element);
+				mergeWithIntersected();
+				updateToActive();
+				fixWalls();
 				draw();
 			} else if (activeElement.current && activeElement.current.type === "wall") {
 				move(clientX, clientY);
 				snapToAxis(activeElement.current.element.start);
 				snapToAxis(activeElement.current.element.end);
+				mergeWithIntersected();
+				updateToActive();
+				fixWalls();
 				draw();
 			}
 		}
 
 		// Preview
 		if (action.current === "drawing" && mode === "draw") {
-			const x1 = preview.current.start.x;
-			const y1 = preview.current.start.y;
-			var { x2, y2 } = snapToAngle(x1, y1, clientX, clientY);
-			preview.current = { start: { x: x1, y: y1 }, end: { x: x2, y: y2 } };
+			movePreview(clientX, clientY);
 			draw();
 		}
 
@@ -323,13 +328,24 @@ export default function FloorplanEditor() {
 		// Drawing
 		if (mode === "draw" && !mouseMoved.current) {
 			createWall(clientX, clientY);
+			draw();
 		}
+	};
+
+	const startPreview = (x, y) => {
+		corners.current.forEach(corner => {
+			if (UTILS.distance(x, y, corner.x, corner.y) < cornerSnapTolerance) {
+				x = corner.x;
+				y = corner.y;
+			}
+		});
+		preview.current = { start: { x, y }, end: { x, y } };
 	};
 
 	const createWall = (x, y) => {
 		if (action.current !== "drawing") {
 			action.current = "drawing";
-			preview.current = { start: { x, y }, end: { x, y } };
+			startPreview(x, y);
 		} else if (action.current === "drawing") {
 			const startCornerId = uuidv4();
 			const endCornerId = uuidv4();
@@ -339,6 +355,13 @@ export default function FloorplanEditor() {
 				: lastCorner.current;
 
 			const endCorner = { ...preview.current.end, id: endCornerId };
+
+			if (startCorner.x === endCorner.x && startCorner.y === endCorner.y) {
+				preview.current = {};
+				action.current = "none";
+				lastCorner.current = {};
+				return;
+			}
 
 			isEmpty(lastCorner.current) && corners.current.push(startCorner);
 			corners.current.push(endCorner);
@@ -351,10 +374,10 @@ export default function FloorplanEditor() {
 				id: `${startCorner.id}-${endCorner.id}`,
 			});
 
-			// if 2 corners are next to each other (using a tolerance), the new corner should replace the old corner
-
 			const previewCopy = { ...preview.current };
-			preview.current = { start: previewCopy.end, end: { x, y } };
+			preview.current = { start: previewCopy.end, end: { x: endCorner.x, y: endCorner.y } };
+			activeElement.current = { element: lastCorner.current, type: "corner" };
+			mergeWithIntersected();
 		}
 	};
 
@@ -380,70 +403,101 @@ export default function FloorplanEditor() {
 
 			activeElement.current.element = { x: newX1, y: newY1, id: activeElement.current.element.id };
 		}
-		updateToActive();
 	};
 
-	// const snapAdjacent = () => {
-	//   const corner1 = findCorner(selectedElement.current.element.startId);
-	//   const corner2 = findCorner(selectedElement.current.element.endId);
+	const checkIntersected = activeCorner => {
+		corners.current.forEach(corner => {
+			if (
+				UTILS.distance(activeCorner.x, activeCorner.y, corner.x, corner.y) < cornerSnapTolerance &&
+				corner.id !== activeCorner.id
+			) {
+				combineWithCorner(corner, activeCorner.id);
+			}
+		});
+	};
 
-	//   corners.current.forEach(corner => {
-	//     if (Math.abs(corner.x - corner1.x) < globalSnapTolerance) {
-	//       corner1.x = corner.x;
-	//     }
-	//     if (Math.abs(corner.x - corner2.x) < globalSnapTolerance) {
-	//       corner2.x = corner.x;
-	//     }
-	//     if (Math.abs(corner.y - corner1.y) < globalSnapTolerance) {
-	//       corner1.y = corner.y;
-	//     }
-	//     if (Math.abs(corner.y - corner2.y) < globalSnapTolerance) {
-	//       corner2.y = corner.y;
-	//     }
-	//   });
-	// };
+	const mergeWithIntersected = () => {
+		if (activeElement.current.type === "corner") {
+			checkIntersected(activeElement.current.element);
+		} else if (activeElement.current.type === "wall") {
+			checkIntersected(activeElement.current.element.start);
+			checkIntersected(activeElement.current.element.end);
+		}
+	};
 
-	// const snapCorners = () => {
-	//   const selectedCorners = [];
+	const combineWithCorner = (corner, id) => {
+		const updatedWalls = walls.current.map(wall => {
+			if (wall.startId === id) {
+				return { startId: corner.id, endId: wall.endId, id: wall.id };
+			}
+			if (wall.endId === id) {
+				return { startId: wall.startId, endId: corner.id, id: wall.id };
+			}
+			return wall;
+		});
+		walls.current = updatedWalls;
+		const deleteID = id;
 
-	//   if (selectedElement.current?.type === "corner") {
-	//     selectedCorners.push(
-	//       corners.current.find(corner => corner.id === selectedElement.current.element.id)
-	//     );
-	//   } else if (selectedElement.current?.type === "wall") {
-	//     selectedCorners.push(
-	//       findCorner(selectedElement.current.element.startId),
-	//       findCorner(selectedElement.current.element.endId)
-	//     );
-	//   }
+		if (activeElement.current.type === "wall") {
+			if (activeElement.current.element.start.id === id) {
+				activeElement.current.element.start = corner;
+			} else if (activeElement.current.element.end.id === id) {
+				activeElement.current.element.end = corner;
+			}
+		} else if (activeElement.current.type === "corner") {
+			activeElement.current.element = corner;
+		}
 
-	//   selectedCorners.forEach(selectedCorner => {
-	//     const closestCorner = findClosestCornerToElement(selectedCorner);
-	//     if (
-	//       closestCorner &&
-	//       UTILS.distance(closestCorner.x, closestCorner.y, selectedCorner.x, selectedCorner.y) <
-	//         globalSnapTolerance
-	//     ) {
-	//       console.log("ye");
-	//       const updatedWalls = walls.current.map(wall => {
-	//         if (wall.startId === selectedCorner.id)
-	//           return { startId: closestCorner.id, endId: wall.endId, id: wall.id };
-	//         if (wall.endId === selectedCorner.id)
-	//           return { startId: wall.startId, endId: closestCorner.id, id: wall.id };
-	//         return wall;
-	//       });
-	//       walls.current = updatedWalls;
-	//       selectedElement.current.type === "corner"
-	//         ? (selectedElement.current.element = closestCorner)
-	//         : null;
-	//       const updatedCorners = corners.current.filter(corner => corner.id !== selectedCorner.id);
-	//       corners.current = updatedCorners;
+		const updatedCorners = corners.current.filter(c => c.id !== deleteID);
+		corners.current = updatedCorners;
+	};
 
-	//       console.log("completed");
-	//     }
-	//   });
-	// };
-	// Error is happening because we need to update the selectedCorners array, because after the 1st corner snaps, the startId / endId will change, however the value in selectedCorners wouldn't.
+	const fixWalls = () => {
+		var deleteID;
+		const updatedWalls = walls.current.filter(wall => {
+			if (wall.startId === wall.endId) {
+				deleteID = wall.startId;
+				activeElement.current = null;
+				mouseDown.current = false;
+				return false;
+			}
+			return true;
+		});
+
+		walls.current = updatedWalls;
+
+		const inOtherWalls = walls.current.some(
+			wall => wall.startId === deleteID || wall.endId === deleteID
+		);
+
+		if (!inOtherWalls) {
+			corners.current = corners.current.filter(corner => corner.id !== deleteID);
+		}
+
+		const stackedWalls = findStackedWalls();
+		if (stackedWalls) {
+			// Need to fix this. Make a square and close it on itself, see what happens
+			console.log("stacked wall found");
+			activeElement.current = { element: convertWall(stackedWalls.switch), type: "wall" };
+			walls.current = walls.current.filter(wall => wall.id !== stackedWalls.delete.id);
+		}
+	};
+
+	const findStackedWalls = () => {
+		for (let i = 0; i < walls.current.length; i++) {
+			const wall1 = walls.current[i];
+			for (let j = i + 1; j < walls.current.length; j++) {
+				const wall2 = walls.current[j];
+				if (
+					(wall1.startId === wall2.startId && wall1.endId === wall2.endId) ||
+					(wall1.startId === wall2.endId && wall1.endId === wall2.startId)
+				) {
+					return { switch: wall1, delete: wall2 };
+				}
+			}
+		}
+		return null;
+	};
 
 	const findClosestCornerToElement = selectedCorner => {
 		let closestCorner = null;
@@ -524,36 +578,6 @@ export default function FloorplanEditor() {
 		activeElement.current = undefined;
 	};
 
-	// const snapCorners = () => {
-	// 	if (corners.current.length < 3) return;
-	// 	const corners = [...corners.current];
-	// 	for (let i = 0; i < corners.length; i++) {
-	// 		const corner1 = corners[i];
-	// 		for (let j = i + 1; j < corners.length; j++) {
-	// 			const corner2 = corners[j];
-	// 			const distance = UTILS.distance(corner1.x, corner1.y, corner2.x, corner2.y);
-	// 			if (distance < globalSnapTolerance) {
-	// 				// Corner you're moving / placing should be deleted, and selectedElement should become the corner where
-	// 				// distance < globalSnapTolerance. Need a way to tell which corner is being moved. Something like
-	// 				// if selectedElement is of type corner, and is equal to corner1 or corner2, then delete the corner it is not
-	// 				// equal to.
-	// 				//
-	// 				// OR corner you're moving / placing should have its position set to the corner it's close to, and the previous
-	// 				// corner should be deleted.
-	// 				//
-	// 				// When drawing, how would I handle it? In this case, corner2 should be the corner which was just drawn, so I can
-	// 				// set corner2's x and y values to corner1's, and delete corner1.
-	// 				var updatedCorners = corners.current.map((corner) => {
-	// 					if (corner.id === corner2.id) return { x: corner1.x, y: corner1.y, id: corner.id };
-	// 					return corner;
-	// 				});
-	// 				updatedCorners = updatedCorners.filter((corner) => corner.id !== corner1.id);
-	// 				corners.current = updatedCorners;
-	// 			}
-	// 		}
-	// 	}
-	// };
-
 	const isCornerInOtherWalls = id => {
 		return walls.current.some(wall => wall.startId === id || wall.endId === id);
 	};
@@ -563,6 +587,7 @@ export default function FloorplanEditor() {
 		action.current = "none";
 		preview.current = {};
 		lastCorner.current = {};
+		activeElement.current = null;
 	};
 
 	return (
@@ -609,16 +634,8 @@ export default function FloorplanEditor() {
 const snapToAngle = (x1, y1, x2, y2) => {
 	const dx = Math.abs(x2 - x1);
 	const dy = Math.abs(y2 - y1);
-	if (dx < previewSnapTolerance) return { x2: x1, y2 };
-	if (dy < previewSnapTolerance) return { x2, y2: y1 };
-	return { x2, y2 };
-};
-
-// x2, y2 -> Mouse position
-// x, y -> Corner of wall
-const snapToCorner = (x1, y1, x2, y2, x, y) => {
-	const distance = UTILS.distance(x2, y2, x, y);
-	if (distance < wallSnapTolerance) return { x2: x, y2: y };
+	if (dx < globalSnapTolerance) return { x2: x1, y2 };
+	if (dy < globalSnapTolerance) return { x2, y2: y1 };
 	return { x2, y2 };
 };
 
