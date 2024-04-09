@@ -3,16 +3,10 @@ export const distance = (x1, y1, x2, y2) => {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 };
 
-/* Distance of point from line
- * x -> Point's x coordinate
- * y -> Point's y coordinate
- * x1 -> Line's point 1 x coordinate
- * y1 -> Line's point 1 y coordinate
- * x2 -> Line's point 2 x coordinate
- * y2 -> Line's point 2 y coordinate
- * Returns distance
+/* Projection of point onto line
+ *
  */
-export const pointDistanceFromLine = (x, y, x1, y1, x2, y2) => {
+export const closestPointOnLine = (x, y, x1, y1, x2, y2) => {
   // Inspired by https://stackoverflow.com/a/6853926
   var A = x - x1;
   var B = y - y1;
@@ -37,8 +31,25 @@ export const pointDistanceFromLine = (x, y, x1, y1, x2, y2) => {
     yy = y1 + param * D;
   }
 
-  var dx = x - xx;
-  var dy = y - yy;
+  return {
+    x: xx,
+    y: yy,
+  };
+};
+
+/* Distance of point from line
+ * x -> Point's x coordinate
+ * y -> Point's y coordinate
+ * x1 -> Line's point 1 x coordinate
+ * y1 -> Line's point 1 y coordinate
+ * x2 -> Line's point 2 x coordinate
+ * y2 -> Line's point 2 y coordinate
+ * Returns distance
+ */
+export const pointDistanceFromLine = (x, y, x1, y1, x2, y2) => {
+  var point = closestPointOnLine(x, y, x1, y1, x2, y2);
+  var dx = x - point.x;
+  var dy = y - point.y;
   return Math.sqrt(dx * dx + dy * dy);
 };
 
