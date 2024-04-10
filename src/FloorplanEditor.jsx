@@ -340,6 +340,7 @@ export default function FloorplanEditor() {
 
 		// Move
 		if (mode === "move" && activeElement.current) {
+			canvasRef.current.style.cursor = "grabbing";
 			if (activeElement.current.type === "wall") {
 				offsetX.current = clientX - activeElement.current.element.start.x;
 				offsetY.current = clientY - activeElement.current.element.start.y;
@@ -366,8 +367,15 @@ export default function FloorplanEditor() {
 			draw();
 		}
 
+		if (mode === "move" && activeElement.current) {
+			canvasRef.current.style.cursor = "grab";
+		} else {
+			canvasRef.current.style.cursor = "default";
+		}
+
 		// Dragging
 		if (mode === "move" && mouseDown.current && activeElement.current) {
+			canvasRef.current.style.cursor = "grabbing";
 			action.current = "moving";
 			move(clientX, clientY);
 			mergeWithIntersected();
