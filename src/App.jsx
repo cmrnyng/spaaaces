@@ -1,7 +1,7 @@
 import { useState } from "react";
 import UI from "./UI.jsx";
 import DesignView from "./DesignView.jsx";
-import FloorplanEditor from "./FloorplanEditor2.jsx";
+import FloorplanEditor from "./FloorplanEditor.jsx";
 import Test from "./Test.jsx";
 
 export default function App() {
