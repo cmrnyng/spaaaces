@@ -61,18 +61,6 @@ export const angle = (x1, y1, x2, y2) => {
 	return theta < 0 ? (theta += 2 * Math.PI) : theta;
 };
 
-// Angle between two lines
-export const angleBetweenLines = (A1x, A1y, A2x, A2y, B1x, B1y, B2x, B2y) => {
-	var dAx = A2x - A1x;
-	var dAy = A2y - A1y;
-	var dBx = B2x - B1x;
-	var dBy = B2y - B1y;
-	var angle = Math.atan2(dAx * dBy - dAy * dBx, dAx * dBx + dAy * dBy);
-	if (angle < 0) angle = angle * -1;
-	var degree_angle = angle * (180 / Math.PI);
-	return degree_angle;
-};
-
 // Checks if lines intersect
 export const lineLineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
 	const ccw = (p1, p2, p3) => {

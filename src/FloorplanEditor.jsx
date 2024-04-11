@@ -452,6 +452,8 @@ export default function FloorplanEditor() {
 
 			const previewCopy = { ...preview.current };
 			preview.current = { start: previewCopy.end, end: { x: endCorner.x, y: endCorner.y } };
+			activeElement.current = { element: startCorner, type: "corner" };
+			mergeWithIntersected();
 			activeElement.current = { element: endCorner, type: "corner" };
 			mergeWithIntersected();
 			lastCorner.current = activeElement.current.element;
