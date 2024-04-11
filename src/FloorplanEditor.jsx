@@ -87,6 +87,16 @@ export default function FloorplanEditor() {
 		draw();
 	};
 
+	// Pan Function
+	const pan = (deltaX, deltaY) => {
+		const panOffsetCopy = { ...panOffset.current };
+		panOffset.current = {
+			x: panOffsetCopy.x + deltaX,
+			y: panOffsetCopy.y + deltaY,
+		};
+		draw();
+	};
+
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		const context = canvas.getContext("2d");
@@ -95,8 +105,14 @@ export default function FloorplanEditor() {
 		handleResize();
 		window.addEventListener("resize", handleResize);
 
+		const handleWheel = e => {
+			pan(-e.deltaX, -e.deltaY);
+		};
+		window.addEventListener("wheel", handleWheel);
+
 		return () => {
 			window.removeEventListener("resize", handleResize);
+			window.removeEventListener("wheel", handleWheel);
 		};
 	}, []);
 
@@ -213,10 +229,6 @@ export default function FloorplanEditor() {
 		context.fill();
 	};
 
-	const drawPolygon = context => {
-		// ...
-	};
-
 	const drawPreview = context => {
 		const { start, end } = preview.current;
 		drawLine(context, start.x, start.y, end.x, end.y, 6, "blue", "round");
@@ -237,14 +249,6 @@ export default function FloorplanEditor() {
 
 	const drawWalls = (context, { start, end }) => {
 		drawLine(context, start.x, start.y, end.x, end.y, 6, "#303030", "round");
-	};
-
-	const drawWall2 = context => {
-		// ...
-	};
-
-	const convertRoom = room => {
-		return room.map(id => findCorner(id));
 	};
 
 	const getMouseCoordinates = e => {
@@ -386,13 +390,7 @@ export default function FloorplanEditor() {
 		if (mouseDown.current && action.current !== "moving") {
 			const deltaX = clientX - mousePosOnClick.current.x;
 			const deltaY = clientY - mousePosOnClick.current.y;
-
-			const panOffsetCopy = { ...panOffset.current };
-			panOffset.current = {
-				x: panOffsetCopy.x + deltaX,
-				y: panOffsetCopy.y + deltaY,
-			};
-			draw();
+			pan(deltaX, deltaY);
 		}
 	};
 
