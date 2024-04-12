@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useStore } from "./store.js";
 import { v4 as uuidv4 } from "uuid";
 import * as utils from "./utils.js";
 import * as dim from "./dim.js";
@@ -17,16 +18,16 @@ const gridWidth = 1;
 const gridColour = "#ddd";
 
 // May be a good idea to combine multiple refs into one useRef, and destructure them when needed
-export default function FloorplanEditor() {
+export const FloorplanEditor = ({ setStoreUpdated }) => {
 	console.log("floorplan render");
 	const canvasRef = useRef();
 	const contextRef = useRef();
 
-	const walls = useRef([]);
-	const corners = useRef([]);
+	const setElements = useStore(state => state.setElements);
+	const walls = useRef(useStore.getState().walls);
+	const corners = useRef(useStore.getState().corners);
+	const rooms = useRef(useStore.getState().rooms);
 	const lastCorner = useRef({});
-	const rooms = useRef([]);
-	const visited = new Set();
 
 	const panOffset = useRef({ x: 0, y: 0 });
 	const mousePosOnClick = useRef({ x: 0, y: 0 });
@@ -54,19 +55,18 @@ export default function FloorplanEditor() {
 		}
 		// Console logs
 		if (e.key === "l") {
-			console.log("Corners:");
-			console.log(corners.current);
-			console.log("Walls:");
-			console.log(walls.current);
+			// console.log("Corners:");
+			// console.log(corners.current);
+			// console.log("Walls:");
+			// console.log(walls.current);
 			// console.log("Last Corner:");
 			// console.log(lastCorner.current);
 			// console.log("Preview:");
 			// console.log(preview.current);
-			console.log("Active Element:");
+			// console.log("Active Element:");
 			console.log(activeElement.current);
 			// formPolygon();
-			console.log(rooms.current);
-			findRooms();
+			// console.log(rooms.current);
 		}
 
 		if (e.key === "1") changeMode("move");
@@ -103,16 +103,26 @@ export default function FloorplanEditor() {
 		contextRef.current = context;
 
 		handleResize();
-		window.addEventListener("resize", handleResize);
-
 		const handleWheel = e => {
 			pan(-e.deltaX, -e.deltaY);
 		};
+
+		// Event listeners
+		window.addEventListener("resize", handleResize);
 		window.addEventListener("wheel", handleWheel);
+
+		// useStore
+		// useStore.subscribe(state => (walls.current = state.walls));
+		// useStore.subscribe(state => (corners.current = state.corners));
+		// useStore.subscribe(state => (rooms.current = state.rooms));
 
 		return () => {
 			window.removeEventListener("resize", handleResize);
 			window.removeEventListener("wheel", handleWheel);
+
+			setElements(corners.current, walls.current, rooms.current);
+
+			setStoreUpdated(true);
 		};
 	}, []);
 
@@ -817,7 +827,7 @@ export default function FloorplanEditor() {
 			/>
 		</>
 	);
-}
+};
 
 const isEmpty = obj => {
 	return Object.keys(obj).length === 0;

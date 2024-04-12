@@ -1,24 +1,20 @@
+import { Experience } from "./Experience/Experience.jsx";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 
-export default function DesignView() {
-  console.log("designview render");
-  return (
-    <Canvas
-      camera={{
-        fov: 45,
-        near: 0.1,
-        far: 2000,
-        position: [-3, 1.5, 4],
-      }}
-      dpr={[1, 2]}
-    >
-      <OrbitControls />
+export const DesignView = () => {
+	console.log("designview render");
 
-      <mesh>
-        <boxGeometry />
-        <meshNormalMaterial />
-      </mesh>
-    </Canvas>
-  );
-}
+	// <Canvas shadows camera={{ position: [10, 12, 12], fov: 25 }} dpr={[1, 2]}>
+
+	return (
+		<Canvas
+			camera={{
+				fov: 60,
+				position: [4, 3, 4],
+			}}
+			dpr={[1, 2]}
+		>
+			<Experience />
+		</Canvas>
+	);
+};
