@@ -29,7 +29,26 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
   const rooms = useRef(useStore.getState().rooms);
   const lastCorner = useRef({});
 
-  const panOffset = useRef({ x: 0, y: 0 });
+  // Centre the view
+  const centre = () => {
+    let [xMin, xMax, yMin, yMax] = [Infinity, -Infinity, Infinity, -Infinity];
+
+    corners.current.forEach(({ x, y }) => {
+      xMin = Math.min(xMin, x);
+      xMax = Math.max(xMax, x);
+      yMin = Math.min(yMin, y);
+      yMax = Math.max(yMax, y);
+    });
+
+    return xMin === Infinity || xMax === -Infinity || yMin === Infinity || yMax === -Infinity
+      ? { x: 0, y: 0 }
+      : {
+          x: (window.innerWidth - (xMax + xMin)) / 2,
+          y: (window.innerHeight - (yMax + yMin)) / 2,
+        };
+  };
+
+  const panOffset = useRef(centre());
   const mousePosOnClick = useRef({ x: 0, y: 0 });
 
   const [mode, setMode] = useState("draw"); // Fine
@@ -67,6 +86,8 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       console.log(activeElement.current);
       // formPolygon();
       console.log(rooms.current);
+      console.log(panOffset.current);
+      console.log(canvasRef.current.width);
     }
 
     if (e.key === "1") changeMode("move");
