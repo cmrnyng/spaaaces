@@ -1,15 +1,10 @@
 import { create } from "zustand";
 
 export const useStore = create(set => ({
-	corners: [],
-	walls: [],
-	rooms: [],
-	setElements: (corners, walls, rooms) => set({ corners, walls, rooms }),
-}));
-
-export const useContext = create(set => ({
-	wglContext: null,
-	setWglContext: ctx => set({ wglContext: ctx }),
+  corners: [],
+  walls: [],
+  rooms: [],
+  setElements: (corners, walls, rooms) => set({ corners, walls, rooms }),
 }));
 
 // Store for testing
