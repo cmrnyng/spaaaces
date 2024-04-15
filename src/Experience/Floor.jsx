@@ -15,7 +15,7 @@ export const Floor = ({ points }) => {
   const shape = new THREE.Shape(points);
 
   return (
-    <mesh rotation-x={Math.PI / 2} position-y={-1.35}>
+    <mesh rotation-x={Math.PI / 2} position-y={0}>
       <shapeGeometry args={[shape, 24]} ref={flooring} />
       <meshBasicMaterial {...textures} side={THREE.BackSide} />
     </mesh>

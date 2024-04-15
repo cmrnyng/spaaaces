@@ -86,8 +86,6 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       console.log(activeElement.current);
       // formPolygon();
       console.log(rooms.current);
-      console.log(panOffset.current);
-      console.log(canvasRef.current.width);
     }
 
     if (e.key === "1") changeMode("move");
@@ -207,7 +205,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
   };
 
   const drawRooms = (context, room) => {
-    room = room.map(el => findCorner(el));
+    room = room.corners.map(el => findCorner(el));
 
     context.beginPath();
     context.moveTo(room[0].x, room[0].y);
@@ -503,9 +501,15 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
     const visitedCorners = new Set();
     const polygons = [];
 
-    const findPolygon = (startCorner, currentCorner, polygonCorners, prevWall, visitedWalls) => {
+    const findPolygon = (
+      startCorner,
+      currentCorner,
+      polygonCorners,
+      polygonWalls,
+      prevWall,
+      visitedWalls
+    ) => {
       visitedCorners.add(startCorner);
-      // visitedCorners.add(currentCorner);
       polygonCorners.push(currentCorner);
 
       const currentWalls = walls.current.filter(
@@ -531,9 +535,11 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         if (currentWall.endId === currentCorner) nextCorner = currentWall.startId;
 
         visitedWalls.add(currentWall.id);
+        polygonWalls.push(currentWall.id);
 
         if (nextCorner === startCorner && polygonCorners.length > 2) {
-          polygons.push(polygonCorners.slice());
+          // polygons.corners.push(polygonCorners.slice());
+          polygons.push({ corners: [...polygonCorners], walls: [...polygonWalls] });
           verdict = true;
           return true;
         }
@@ -547,6 +553,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
           startCorner,
           nextCorner,
           polygonCorners,
+          polygonWalls,
           currentWall,
           visitedWalls
         );
@@ -554,6 +561,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         if (!success) {
           visitedCorners.delete(nextCorner);
           polygonCorners.pop();
+          polygonWalls.pop();
         }
 
         verdict = success;
@@ -564,7 +572,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
 
     for (const corner of corners.current) {
       if (!visitedCorners.has(corner.id)) {
-        findPolygon(corner.id, corner.id, [], null, new Set());
+        findPolygon(corner.id, corner.id, [], [], null, new Set());
       }
     }
 
