@@ -83,9 +83,12 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       // console.log("Preview:");
       // console.log(preview.current);
       // console.log("Active Element:");
-      console.log(activeElement.current);
       // formPolygon();
       console.log(rooms.current);
+    }
+    if (e.key === "i") {
+      console.log(activeElement.current);
+      checkDirection();
     }
 
     if (e.key === "1") changeMode("move");
@@ -205,7 +208,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
   };
 
   const drawRooms = (context, room) => {
-    room = room.corners.map(el => findCorner(el));
+    room = room.map(el => findCorner(el));
 
     context.beginPath();
     context.moveTo(room[0].x, room[0].y);
@@ -376,6 +379,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       if (activeElement.current) {
         deleteElement(activeElement.current);
         findRooms();
+        // findRooms2();
         draw();
       }
     }
@@ -406,6 +410,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       updateToActive();
       fixWalls();
       findRooms();
+      // findRooms2();
       draw();
     }
 
@@ -433,6 +438,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       createWall(clientX, clientY);
       fixWalls();
       findRooms();
+      // findRooms2();
       draw();
     }
 
@@ -501,14 +507,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
     const visitedCorners = new Set();
     const polygons = [];
 
-    const findPolygon = (
-      startCorner,
-      currentCorner,
-      polygonCorners,
-      polygonWalls,
-      prevWall,
-      visitedWalls
-    ) => {
+    const findPolygon = (startCorner, currentCorner, polygonCorners, prevWall, visitedWalls) => {
       visitedCorners.add(startCorner);
       polygonCorners.push(currentCorner);
 
@@ -535,11 +534,9 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         if (currentWall.endId === currentCorner) nextCorner = currentWall.startId;
 
         visitedWalls.add(currentWall.id);
-        polygonWalls.push(currentWall.id);
 
         if (nextCorner === startCorner && polygonCorners.length > 2) {
-          // polygons.corners.push(polygonCorners.slice());
-          polygons.push({ corners: [...polygonCorners], walls: [...polygonWalls] });
+          polygons.push(polygonCorners.slice());
           verdict = true;
           return true;
         }
@@ -553,7 +550,6 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
           startCorner,
           nextCorner,
           polygonCorners,
-          polygonWalls,
           currentWall,
           visitedWalls
         );
@@ -561,7 +557,6 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         if (!success) {
           visitedCorners.delete(nextCorner);
           polygonCorners.pop();
-          polygonWalls.pop();
         }
 
         verdict = success;
@@ -572,11 +567,152 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
 
     for (const corner of corners.current) {
       if (!visitedCorners.has(corner.id)) {
-        findPolygon(corner.id, corner.id, [], [], null, new Set());
+        findPolygon(corner.id, corner.id, [], null, new Set());
       }
     }
 
+    console.log(polygons);
+
+    polygons.map(polygon => {
+      const converted = polygon.map(c => findCorner(c));
+      if (!utils.isClockwise(converted)) {
+        console.log("not clockwise");
+        return polygon.reverse();
+      }
+      return polygon;
+    });
+
     rooms.current = polygons;
+  };
+
+  const checkDirection = () =>
+    rooms.current.forEach(room => {
+      const c = room.map(corner => findCorner(corner));
+      console.log(utils.isClockwise(c));
+    });
+
+  const findRooms2 = () => {
+    const calculateTheta = (previousCorner, currentCorner, nextCorner) => {
+      return utils.angle2pi(
+        previousCorner.x - currentCorner.x,
+        previousCorner.y - currentCorner.y,
+        nextCorner.x - currentCorner.x,
+        nextCorner.y - currentCorner.y
+      );
+    };
+
+    const removeDuplicateRooms = roomArray => {
+      let results = [];
+      let lookup = {};
+      let str;
+
+      for (let i = 0; i < roomArray.length; i++) {
+        let add = true;
+        let room = roomArray[i];
+        for (let j = 0; j < room.length; j++) {
+          let roomShift = utils.cycle(room, j);
+          str = roomShift.map(el => el.id).join("~");
+          if (lookup.hasOwnProperty(str)) {
+            add = false;
+          }
+        }
+        if (add) {
+          results.push(roomArray[i]);
+          lookup[str] = true;
+        }
+      }
+      return results;
+    };
+
+    const findTightestCycle = (firstCorner, secondCorner) => {
+      let stack = [];
+      let next = {
+        corner: secondCorner,
+        previousCorners: [firstCorner],
+      };
+      let visited = {};
+      visited[firstCorner.id] = true;
+
+      while (next) {
+        let currentCorner = next.corner;
+        visited[currentCorner.id] = true;
+
+        if (next.corner === firstCorner && currentCorner !== secondCorner)
+          return next.previousCorners;
+
+        let addToStack = [];
+        let adjCorners = [];
+        let connectedWalls = walls.current.filter(
+          wall => currentCorner.id === wall.startId || currentCorner.id === wall.endId
+        );
+        connectedWalls.forEach(wall => {
+          if (wall.startId === currentCorner.id) adjCorners.push(findCorner(wall.endId)); // May be source of issues
+          if (wall.endId === currentCorner.id) adjCorners.push(findCorner(wall.startId));
+        });
+        for (let i = 0; i < adjCorners.length; i++) {
+          let nextCorner = adjCorners[i];
+
+          if (
+            nextCorner.id in visited &&
+            !(nextCorner === firstCorner && currentCorner !== secondCorner)
+          ) {
+            continue;
+          }
+
+          addToStack.push(nextCorner);
+        }
+
+        let previousCorners = next.previousCorners.slice();
+        previousCorners.push(currentCorner);
+        if (addToStack.length > 1) {
+          let previousCorner = next.previousCorners[next.previousCorners.length - 1];
+          addToStack.sort((a, b) => {
+            return (
+              calculateTheta(previousCorner, currentCorner, b) -
+              calculateTheta(previousCorner, currentCorner, a)
+            );
+          });
+        }
+
+        if (addToStack.length > 0) {
+          addToStack.forEach(corner => {
+            stack.push({
+              corner,
+              previousCorners,
+            });
+          });
+        }
+
+        next = stack.pop();
+      }
+
+      return [];
+    };
+
+    let loops = [];
+
+    corners.current.forEach(firstCorner => {
+      let adjCorners = [];
+      let connectedWalls = walls.current.filter(
+        wall => firstCorner.id === wall.startId || firstCorner.id === wall.endId
+      );
+      connectedWalls.forEach(wall => {
+        if (wall.startId === firstCorner.id) adjCorners.push(findCorner(wall.endId));
+        if (wall.endId === firstCorner.id) adjCorners.push(findCorner(wall.startId));
+      });
+
+      adjCorners.forEach(secondCorner => {
+        loops.push(findTightestCycle(firstCorner, secondCorner));
+      });
+    });
+
+    let uniqueLoops = removeDuplicateRooms(loops);
+    let uniqueCCWLoops = uniqueLoops.filter(loop => {
+      if (utils.isClockwise(loop)) return false;
+      return true;
+    });
+
+    rooms.current = uniqueCCWLoops;
   };
 
   const move = (clientX, clientY) => {

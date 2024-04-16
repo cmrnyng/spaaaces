@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import * as utils from "../utils.js";
-import { useRef, useLayoutEffect } from "react";
 
 const pi = Math.PI;
 const height = 2.7;
@@ -8,10 +7,6 @@ const height = 2.7;
 const thickness = 0.1;
 // Try to keep rotations consistently clockwise, may solve the wall direction issue
 export const Wall = ({ wall }) => {
-  // const interior = useRef();
-  // const exterior = useRef();
-  const box = useRef();
-
   const { start, end } = wall;
   let interiorTransform = new THREE.Matrix4();
   let invInteriorTransform = new THREE.Matrix4();
@@ -21,7 +16,7 @@ export const Wall = ({ wall }) => {
   const thetaStart = (2 * pi - start.angle) / 2 - pi / 2;
   const startSideLength = thickness / Math.cos(thetaStart);
   const interiorStart = {
-    x: start.x + (startSideLength / 2) * Math.sin(thetaStart),
+    x: start.x - (startSideLength / 2) * Math.sin(thetaStart),
     y: start.y + (startSideLength / 2) * Math.cos(thetaStart),
   };
   const exteriorStart = {
@@ -32,7 +27,7 @@ export const Wall = ({ wall }) => {
   const thetaEnd = (2 * pi - end.angle) / 2 - pi / 2;
   const endSideLength = thickness / Math.cos(thetaEnd);
   const interiorEnd = {
-    x: end.x - (startSideLength / 2) * Math.sin(thetaEnd),
+    x: end.x + (startSideLength / 2) * Math.sin(thetaEnd),
     y: end.y + (startSideLength / 2) * Math.cos(thetaEnd),
   };
   const exteriorEnd = {
@@ -80,9 +75,15 @@ export const Wall = ({ wall }) => {
 
     let geometry = new THREE.ShapeGeometry(shape);
 
-    geometry.vertices.forEach(v => {
-      v.applyMatrix4(invTransform);
-    });
+    const pos = geometry.getAttribute("position");
+
+    const vertex = new THREE.Vector3();
+
+    for (let i = 0; i < pos.count; i++) {
+      vertex.fromBufferAttribute(pos, i);
+      vertex.applyMatrix4(invTransform);
+      pos.setXYZ(i, vertex.x, vertex.y, vertex.z);
+    }
 
     // Make UVs
     let totalDistance = utils.distance(v1.x, v1.z, v2.x, v2.z);
@@ -129,16 +130,12 @@ export const Wall = ({ wall }) => {
     return geometry;
   };
 
-  interior = makeWall(interiorStart, interiorEnd, interiorTransform, invInteriorTransform);
+  const interior = makeWall(interiorStart, interiorEnd, interiorTransform, invInteriorTransform);
 
   return (
     <>
-      <mesh>
-        <boxGeometry ref={box} />
-        <meshBasicMaterial />
-      </mesh>
       <mesh geometry={interior}>
-        <meshBasicMaterial />
+        <meshBasicMaterial color={"mediumpurple"} />
       </mesh>
     </>
   );

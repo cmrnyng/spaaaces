@@ -66,6 +66,12 @@ export const angle = (x1, y1, x2, y2) => {
   return -Math.atan2(det, dot);
 };
 
+export const angle2pi = (x1, y1, x2, y2) => {
+  let theta = angle(x1, y1, x2, y2);
+  if (theta < 0) theta += 2 * Math.PI;
+  return theta;
+};
+
 // Checks if lines intersect
 export const lineLineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
   const ccw = (p1, p2, p3) => {
@@ -83,4 +89,24 @@ export const lineLineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
   var P3 = { x: x3, y: y3 };
   var P4 = { x: x4, y: y4 };
   return ccw(P1, P3, P4) != ccw(P2, P3, P4) && ccw(P1, P2, P3) != ccw(P1, P2, P4);
+};
+
+export const isClockwise = points => {
+  let area = 0;
+
+  for (let i = 0; i < points.length; i++) {
+    const j = (i + 1) % points.length;
+    area += (points[j].x - points[i].x) * (points[j].y + points[i].y);
+  }
+
+  return area <= 0;
+};
+
+export const cycle = (arr, shift) => {
+  let r = arr.slice();
+  for (let i = 0; i < shift; i++) {
+    let s = r.shift();
+    r.push(s);
+  }
+  return r;
 };

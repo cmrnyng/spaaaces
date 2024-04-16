@@ -18,14 +18,25 @@ export const Experience = () => {
     id: wall.id,
   }));
 
-  const rooms = roomIds.map(room => ({
-    corners: room.corners.map(id => corners.find(c => c.id === id)),
-    walls: room.walls.map(id => walls.find(w => w.id === id)),
-  }));
+  // const rooms = roomIds.map(room => ({
+  //   corners: room.corners.map(id => corners.find(c => c.id === id)),
+  //   walls: room.walls.map(id => walls.find(w => w.id === id)),
+  // }));
 
-  const orphanWalls = walls.filter(
-    wall => !rooms.some(room => room.walls.some(w => w.id === wall.id))
+  const rooms = roomIds.map(room => room.map(id => corners.find(c => c.id === id)));
+
+  const getWalls = room =>
+    walls.filter(
+      wall => room.some(c => c.id === wall.start.id) && room.some(c => c.id === wall.end.id)
+    );
+
+  const wallsInRooms = walls.filter(wall =>
+    rooms.some(
+      room => room.some(c => c.id === wall.start.id) && room.some(c => c.id === wall.end.id)
+    )
   );
+
+  const orphanWalls = walls.filter(wall => !wallsInRooms.some(wir => wir.id === wall.id));
 
   // console.log(roomIds);
   // const rooms = roomIds.map(room =>
@@ -39,6 +50,7 @@ export const Experience = () => {
   //     );
   //   });
   // }
+
   // Grid config
   const { gridSize, ...gridConfig } = {
     gridSize: [10.5, 10.5],
@@ -74,9 +86,10 @@ export const Experience = () => {
         <Floor key={i} points={room} />
       ))} */}
 
-      {rooms.map((room, i) => (
-        <Room key={i} room={room} />
-      ))}
+      {rooms.map((room, i) => {
+        const roomWalls = getWalls(room);
+        return <Room key={i} room={room} walls={roomWalls} />;
+      })}
     </>
   );
 };
