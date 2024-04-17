@@ -56,7 +56,7 @@ export const Experience = () => {
     gridSize: [10.5, 10.5],
     cellSize: 0.4,
     cellThickness: 1,
-    cellColor: "#000000",
+    cellColor: "#d3d3d3",
     sectionSize: 3.3,
     sectionThickness: 0,
     fadeDistance: 25,
@@ -68,6 +68,7 @@ export const Experience = () => {
   return (
     <>
       <OrbitControls
+        makeDefault
         maxPolarAngle={Math.PI / 2}
         screenSpacePanning={false}
         minDistance={1}
@@ -76,15 +77,6 @@ export const Experience = () => {
       />
       <axesHelper args={[2, 2, 2]} />
       <Grid position={[0, -0.01, 0]} args={gridSize} {...gridConfig} />
-
-      {/* <WallTest /> */}
-
-      {/* {walls.map((wall, i) => (
-        <Wall key={i} wall={wall} />
-      ))}
-      {rooms.map((room, i) => (
-        <Floor key={i} points={room} />
-      ))} */}
 
       {rooms.map((room, i) => {
         const roomWalls = getWalls(room);

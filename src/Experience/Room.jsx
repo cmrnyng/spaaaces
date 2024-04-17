@@ -1,40 +1,16 @@
 import * as THREE from "three";
+import * as utils from "../utils.js";
 import { Wall } from "./Wall.jsx";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+
+const wallThickness = 0.1;
 
 export const Room = ({ room, walls }) => {
   // let { corners, walls } = room;
   let corners = room;
 
-  // Floor - needs to be updated using interior wall as corners
-  const floorPts = corners.map(p => new THREE.Vector2(p.x, p.y));
-  const floor = new THREE.Shape(floorPts);
-
   // Walls
-  // Getting walls which are part of the room
-
-  // Walls
-  // Calculating angle between walls at each corner
-  corners.forEach(corner => {
-    // Finding adjacent corners
-    const adjCorners = [];
-    const connectedWalls = walls.filter(
-      wall => wall.start.id === corner.id || wall.end.id === corner.id
-    );
-    connectedWalls.forEach(wall => {
-      if (wall.end.id === corner.id) adjCorners.push(wall.start);
-      if (wall.start.id === corner.id) adjCorners.push(wall.end);
-    });
-    // Calculate angle between these corners
-    const corner1 = new THREE.Vector2(adjCorners[0].x - corner.x, adjCorners[0].y - corner.y);
-    const corner2 = new THREE.Vector2(adjCorners[1].x - corner.x, adjCorners[1].y - corner.y);
-    const angle = corner1.angleTo(corner2);
-    walls = walls.map(wall => {
-      if (wall.start.id === corner.id) wall.start.angle = angle;
-      if (wall.end.id === corner.id) wall.end.angle = angle;
-      return wall;
-    });
-  });
-
   // For each corner, find walls where it is their start and walls where it is their end
   corners.forEach(corner => {
     corner.wallStarts = [];
@@ -65,7 +41,6 @@ export const Room = ({ room, walls }) => {
   };
 
   // Find half edges - maybe put this code in a usememo or something
-  // If wall goes start to end in the direction it is being checked in, then front = true, otherwise front = false
   let halfEdges = [];
 
   for (let i = 0; i < corners.length; i++) {
@@ -77,41 +52,86 @@ export const Room = ({ room, walls }) => {
 
     // Every wall should go from first -> second
     if (wallTo) {
-      halfEdges.push({ wall: wallTo, front: true });
-    }
-    if (wallFrom) {
-      halfEdges.push({ wall: changeDirection(wallFrom), front: true });
+      halfEdges.push({ wall: wallTo });
+    } else if (wallFrom) {
+      halfEdges.push({ wall: changeDirection(wallFrom) });
+    } else {
+      console.log("Error");
     }
   }
 
-  console.log(halfEdges);
+  const halfEdgesCopy = halfEdges.map(el => Object.assign({}, el));
 
-  // Signed area
-  // const signedArea = vertices => {
-  //   let area = 0;
+  for (let i = 0; i < halfEdges.length; i++) {
+    if (i === 0) {
+      halfEdges[i].next = halfEdgesCopy[i + 1].wall;
+      halfEdges[i].prev = halfEdgesCopy[halfEdges.length - 1].wall;
+    } else if (i === halfEdges.length - 1) {
+      halfEdges[i].next = halfEdgesCopy[0].wall;
+      halfEdges[i].prev = halfEdgesCopy[i - 1].wall;
+    } else {
+      halfEdges[i].next = halfEdgesCopy[i + 1].wall;
+      halfEdges[i].prev = halfEdgesCopy[i - 1].wall;
+    }
+  }
 
-  //   for (let i = 0; i < vertices.length; i++) {
-  //     const j = (i + 1) % vertices.length;
-  //     area += (vertices[j].x - vertices[i].x) * (vertices[j].y + vertices[i].y);
-  //   }
+  // Calculate angles between walls
+  const cornerAngle = (v1, v2) => {
+    var theta = utils.angle2pi(
+      v1.start.x - v1.end.x,
+      v1.start.y - v1.end.y,
+      v2.end.x - v1.end.x,
+      v2.end.y - v1.end.y
+    );
 
-  //   return area / 2;
-  // };
+    var cs = Math.cos(theta / 2);
+    var sn = Math.sin(theta / 2);
 
-  // const area = signedArea(corners);
+    var v2dx = v2.end.x - v2.start.x;
+    var v2dy = v2.end.y - v2.start.y;
+
+    var vx = v2dx * cs - v2dy * sn;
+    var vy = v2dx * sn + v2dy * cs;
+
+    var mag = utils.distance(0, 0, vx, vy);
+    var desiredMag = wallThickness / 2 / sn;
+    var scalar = desiredMag / mag;
+
+    return { x: vx * scalar, y: vy * scalar };
+  };
+
+  const finalEdges = halfEdges.map(edge => {
+    const { wall, prev, next } = edge;
+    const startVec = cornerAngle(prev, wall);
+    const endVec = cornerAngle(wall, next);
+
+    const interiorStart = { x: wall.start.x + startVec.x, y: wall.start.y + startVec.y };
+    const interiorEnd = { x: wall.end.x + endVec.x, y: wall.end.y + endVec.y };
+    const exteriorStart = { x: wall.start.x - startVec.x, y: wall.start.y - startVec.y };
+    const exteriorEnd = { x: wall.end.x - endVec.x, y: wall.end.y - endVec.y };
+
+    return { interiorStart, interiorEnd, exteriorStart, exteriorEnd };
+  });
+
+  // Floor
+  const floorPts = finalEdges.map(edge => {
+    const i = edge.interiorStart;
+    return new THREE.Vector2(i.x, i.y);
+  });
+  const floor = new THREE.Shape(floorPts);
 
   return (
     <group>
       <mesh rotation-x={Math.PI / 2} position-y={0}>
         <shapeGeometry args={[floor]} />
-        <meshBasicMaterial side={THREE.BackSide} />
+        <meshBasicMaterial side={THREE.BackSide} color={"#C4A484"} />
       </mesh>
       {/* {walls.map((wall, i) => (
         <Wall key={i} wall={wall} />
       ))} */}
-      {halfEdges.map((edge, i) => (
-        <Wall key={i} wall={edge.wall} />
-      ))}
+      {finalEdges.map((edge, i) => {
+        return <Wall key={i} edge={edge} />;
+      })}
     </group>
   );
 };
