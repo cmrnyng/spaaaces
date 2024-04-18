@@ -1,23 +1,53 @@
 import * as THREE from "three";
 import { useTexture } from "@react-three/drei";
-import { useRef } from "react";
 
-export const Floor = ({ points }) => {
+export const Floor = ({ edges }) => {
+  // Floor
+  const floorPts = edges.map(edge => {
+    const i = edge.interiorStart;
+    return new THREE.Vector2(i.x, i.y);
+  });
+  const floor = new THREE.Shape(floorPts);
+
+  const outerFloorPts = edges.map(edge => {
+    const i = edge.exteriorStart;
+    return new THREE.Vector2(i.x, i.y);
+  });
+  const outerFloor = new THREE.Shape(outerFloorPts);
+
+  // Textures
   const textures = useTexture({
-    map: "textures/diagonal_parquet_diff_4k.jpg",
+    map: "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Color.jpg",
+    normalMap: "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_NormalGL.jpg",
+    roughnessMap: "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Roughness.jpg",
   });
 
-  const flooring = useRef();
+  const cloneTextures = textures => {
+    const clonedTextures = {};
+    for (const key in textures) {
+      const texture = textures[key];
+      const textureClone = texture.clone();
+      textureClone.rotation = Math.PI / 2;
+      textureClone.repeat.set(0.3, 0.3);
+      textureClone.wrapS = THREE.RepeatWrapping;
+      textureClone.wrapT = THREE.RepeatWrapping;
+      clonedTextures[key] = textureClone;
+    }
+    return clonedTextures;
+  };
 
-  console.log(flooring.current);
-
-  points = points.map(p => new THREE.Vector2(p.x, p.y));
-  const shape = new THREE.Shape(points);
+  const finalTextures = cloneTextures(textures);
 
   return (
-    <mesh rotation-x={Math.PI / 2} position-y={0}>
-      <shapeGeometry args={[shape, 24]} ref={flooring} />
-      <meshBasicMaterial {...textures} side={THREE.BackSide} />
-    </mesh>
+    <group>
+      <mesh rotation-x={Math.PI / 2} position-y={0}>
+        <shapeGeometry args={[floor]} />
+        <meshStandardMaterial side={THREE.BackSide} {...finalTextures} />
+      </mesh>
+      <mesh rotation-x={Math.PI / 2} position-y={-0.001}>
+        <shapeGeometry args={[outerFloor]} />
+        <meshStandardMaterial side={THREE.BackSide} color={"#d3d3d3"} />
+      </mesh>
+    </group>
   );
 };

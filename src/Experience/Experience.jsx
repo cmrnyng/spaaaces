@@ -1,13 +1,26 @@
-import { OrbitControls, Grid } from "@react-three/drei";
+import {
+  OrbitControls,
+  Grid,
+  useHelper,
+  useTexture,
+  Select,
+  Edges,
+  useSelect,
+} from "@react-three/drei";
+import { useLoader } from "@react-three/fiber";
+import { useRef } from "react";
 import { useStore } from "../store.js";
 import { Room } from "./Room.jsx";
 import { OrphanWall } from "./OrphanWall.jsx";
-import { Floor } from "./Floor.jsx";
+import * as THREE from "three";
 
 export const Experience = () => {
   const wallIds = useStore.getState().walls;
   const unconvertedCorners = useStore.getState().corners;
   const roomIds = useStore.getState().rooms;
+
+  const dirLight = useRef();
+  // useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
 
   // Conversion into Three.js coords
   const corners = unconvertedCorners.map(c => ({ x: c.x / 40, y: c.y / 40, id: c.id }));
@@ -65,6 +78,17 @@ export const Experience = () => {
     infiniteGrid: true,
   };
 
+  // const textures = useTexture({
+  //   map: "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Color.jpg",
+  // });
+
+  // const colorMap = useLoader(
+  //   TextureLoader,
+  //   "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Color.jpg"
+  // );
+  // colorMap.repeat.x = 1;
+  // colorMap.wrapS = THREE.RepeatWrapping;
+
   return (
     <>
       <OrbitControls
@@ -77,11 +101,24 @@ export const Experience = () => {
       />
       <axesHelper args={[2, 2, 2]} />
       <Grid position={[0, -0.01, 0]} args={gridSize} {...gridConfig} />
+      <directionalLight ref={dirLight} position={[0, 20, 0]} />
+      <ambientLight intensity={1.3} />
 
-      {rooms.map((room, i) => {
-        const roomWalls = getWalls(room);
-        return <Room key={i} room={room} walls={roomWalls} />;
-      })}
+      <Select>
+        {rooms.map((room, i) => {
+          const roomWalls = getWalls(room);
+          return <Room key={i} room={room} walls={roomWalls} />;
+        })}
+
+        {orphanWalls.map((wall, i) => (
+          <OrphanWall key={i} wall={wall} />
+        ))}
+      </Select>
+
+      {/* <mesh position={[0, 1.35, 2]}>
+        <planeGeometry args={[2.7, 2.7]} />
+        <meshStandardMaterial side={THREE.DoubleSide} />
+      </mesh> */}
     </>
   );
 };

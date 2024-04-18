@@ -576,7 +576,6 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
     polygons.map(polygon => {
       const converted = polygon.map(c => findCorner(c));
       if (!utils.isClockwise(converted)) {
-        console.log("not clockwise");
         return polygon.reverse();
       }
       return polygon;

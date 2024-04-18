@@ -1,14 +1,17 @@
 import * as THREE from "three";
 import * as utils from "../utils.js";
 import { Wall } from "./Wall.jsx";
-import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { Floor } from "./Floor.jsx";
+import { useTexture, Select, Edges } from "@react-three/drei";
+import { useRef, useEffect, useMemo } from "react";
 
 const wallThickness = 0.1;
 
 export const Room = ({ room, walls }) => {
   // let { corners, walls } = room;
   let corners = room;
+
+  const floorGeometry = useRef();
 
   // Walls
   // For each corner, find walls where it is their start and walls where it is their end
@@ -113,24 +116,18 @@ export const Room = ({ room, walls }) => {
     return { interiorStart, interiorEnd, exteriorStart, exteriorEnd };
   });
 
-  // Floor
-  const floorPts = finalEdges.map(edge => {
-    const i = edge.interiorStart;
-    return new THREE.Vector2(i.x, i.y);
-  });
-  const floor = new THREE.Shape(floorPts);
-
   return (
     <group>
-      <mesh rotation-x={Math.PI / 2} position-y={0}>
-        <shapeGeometry args={[floor]} />
-        <meshBasicMaterial side={THREE.BackSide} color={"#C4A484"} />
-      </mesh>
+      {/* <mesh rotation-x={Math.PI / 2} position-y={0}>
+        <shapeGeometry args={[floor]} ref={floorGeometry} />
+        <meshStandardMaterial side={THREE.BackSide} {...finalTextures} />
+      </mesh> */}
+      <Floor edges={finalEdges} />
       {/* {walls.map((wall, i) => (
         <Wall key={i} wall={wall} />
       ))} */}
       {finalEdges.map((edge, i) => {
-        return <Wall key={i} edge={edge} />;
+        return <Wall key={i} edge={edge} orphan={false} />;
       })}
     </group>
   );
