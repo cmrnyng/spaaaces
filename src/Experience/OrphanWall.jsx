@@ -1,58 +1,44 @@
-import * as THREE from "three";
-import { useRef } from "react";
-import { useTexture, useSelect } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useMemo } from "react";
 import { Wall } from "./Wall.jsx";
 import * as utils from "../utils.js";
 
 const height = 2.7;
-const wallThickness = 0.1;
+const wallThickness = 0.08;
 
 export const OrphanWall = ({ wall }) => {
-  const selected = useSelect();
-  console.log(selected);
-  let select = false;
-  if (!selected.length === 0) {
-    console.log("true");
-    select = true;
-  }
+  const edge = useMemo(() => {
+    const { start, end } = wall;
 
-  const { start, end } = wall;
-  const wallRef = useRef();
+    // Calculate angles between walls
+    const cornerAngle = w => {
+      var theta = Math.PI;
 
-  let interiorTransform = new THREE.Matrix4();
-  let invInteriorTransform = new THREE.Matrix4();
-  let exteriorTransform = new THREE.Matrix4();
-  let invExteriorTransform = new THREE.Matrix4();
+      var cs = Math.cos(theta / 2);
+      var sn = Math.sin(theta / 2);
 
-  // Calculate angles between walls
-  const cornerAngle = w => {
-    var theta = Math.PI;
+      var wdx = w.end.x - w.start.x;
+      var wdy = w.end.y - w.start.y;
 
-    var cs = Math.cos(theta / 2);
-    var sn = Math.sin(theta / 2);
+      var vx = wdx * cs - wdy * sn;
+      var vy = wdx * sn + wdy * cs;
 
-    var wdx = w.end.x - w.start.x;
-    var wdy = w.end.y - w.start.y;
+      var mag = utils.distance(0, 0, vx, vy);
+      var desiredMag = wallThickness / 2 / sn;
+      var scalar = desiredMag / mag;
 
-    var vx = wdx * cs - wdy * sn;
-    var vy = wdx * sn + wdy * cs;
+      return { x: vx * scalar, y: vy * scalar };
+    };
 
-    var mag = utils.distance(0, 0, vx, vy);
-    var desiredMag = wallThickness / 2 / sn;
-    var scalar = desiredMag / mag;
+    const vec = cornerAngle(wall);
 
-    return { x: vx * scalar, y: vy * scalar };
-  };
+    const interiorStart = { x: start.x + vec.x, y: start.y + vec.y };
+    const interiorEnd = { x: end.x + vec.x, y: end.y + vec.y };
+    const exteriorStart = { x: start.x - vec.x, y: start.y - vec.y };
+    const exteriorEnd = { x: end.x - vec.x, y: end.y - vec.y };
+    const id = wall.id;
 
-  const vec = cornerAngle(wall);
+    return { interiorStart, interiorEnd, exteriorStart, exteriorEnd, id };
+  }, []);
 
-  const interiorStart = { x: start.x + vec.x, y: start.y + vec.y };
-  const interiorEnd = { x: end.x + vec.x, y: end.y + vec.y };
-  const exteriorStart = { x: start.x - vec.x, y: start.y - vec.y };
-  const exteriorEnd = { x: end.x - vec.x, y: end.y - vec.y };
-
-  const edge = { interiorStart, interiorEnd, exteriorStart, exteriorEnd };
-
-  return <Wall edge={edge} orphan={true} colour={select} />;
+  return <Wall edge={edge} orphan={true} />;
 };

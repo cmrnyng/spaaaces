@@ -8,10 +8,12 @@ import {
   useSelect,
 } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useStore } from "../store.js";
+import { Perf } from "r3f-perf";
 import { Room } from "./Room.jsx";
 import { OrphanWall } from "./OrphanWall.jsx";
+import { PopupMenu } from "./PopupMenu.jsx";
 import * as THREE from "three";
 
 export const Experience = () => {
@@ -19,8 +21,10 @@ export const Experience = () => {
   const unconvertedCorners = useStore.getState().corners;
   const roomIds = useStore.getState().rooms;
 
+  const boxGeo = useRef();
+
   const dirLight = useRef();
-  // useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
+  useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
 
   // Conversion into Three.js coords
   const corners = unconvertedCorners.map(c => ({ x: c.x / 40, y: c.y / 40, id: c.id }));
@@ -37,6 +41,7 @@ export const Experience = () => {
   // }));
 
   const rooms = roomIds.map(room => room.map(id => corners.find(c => c.id === id)));
+  console.log(rooms);
 
   const getWalls = room =>
     walls.filter(
@@ -89,8 +94,18 @@ export const Experience = () => {
   // colorMap.repeat.x = 1;
   // colorMap.wrapS = THREE.RepeatWrapping;
 
+  const material1 = new THREE.MeshStandardMaterial({ color: "red" });
+  const material2 = new THREE.MeshStandardMaterial({ color: "blue" });
+
+  const materials = [null, null, null, null, material1, material2];
+
+  // useEffect(() => {
+  //   console.log(boxGeo.current);
+  // }, []);
+
   return (
     <>
+      <Perf />
       <OrbitControls
         makeDefault
         maxPolarAngle={Math.PI / 2}
@@ -104,20 +119,19 @@ export const Experience = () => {
       <directionalLight ref={dirLight} position={[0, 20, 0]} />
       <ambientLight intensity={1.3} />
 
-      <Select>
-        {rooms.map((room, i) => {
-          const roomWalls = getWalls(room);
-          return <Room key={i} room={room} walls={roomWalls} />;
-        })}
+      {rooms.map((room, i) => {
+        const roomWalls = getWalls(room);
+        return <Room key={i} room={room} walls={roomWalls} />;
+      })}
 
-        {orphanWalls.map((wall, i) => (
-          <OrphanWall key={i} wall={wall} />
-        ))}
-      </Select>
+      {orphanWalls.map((wall, i) => (
+        <OrphanWall key={i} wall={wall} />
+      ))}
 
-      {/* <mesh position={[0, 1.35, 2]}>
-        <planeGeometry args={[2.7, 2.7]} />
-        <meshStandardMaterial side={THREE.DoubleSide} />
+      <PopupMenu />
+
+      {/* <mesh position={[0, 3.5, 2]} material={materials} ref={boxGeo}>
+        <boxGeometry args={[2.7, 2.7, 2.7]} />
       </mesh> */}
     </>
   );

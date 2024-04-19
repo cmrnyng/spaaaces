@@ -1,8 +1,12 @@
 import { Experience } from "./Experience/Experience.jsx";
 import { Canvas } from "@react-three/fiber";
+import { useSelect } from "./selection.js";
 
 export const DesignView = () => {
   console.log("designview render");
+  const eventHandler = () => {
+    useSelect.setState({ selection: null });
+  };
 
   // <Canvas shadows camera={{ position: [10, 12, 12], fov: 25 }} dpr={[1, 2]}>
 
@@ -13,6 +17,12 @@ export const DesignView = () => {
         position: [4, 4, 4],
       }}
       dpr={[1, 2]}
+      onCreated={state => {
+        state.setEvents({
+          filter: intersections => intersections.filter(i => i.object.visible),
+        });
+      }}
+      onPointerMissed={eventHandler}
     >
       <Experience />
     </Canvas>

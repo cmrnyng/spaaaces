@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useTexture } from "@react-three/drei";
 
-export const Floor = ({ edges }) => {
+export const Floor = ({ edges, id }) => {
   // Floor
   const floorPts = edges.map(edge => {
     const i = edge.interiorStart;
@@ -17,9 +17,10 @@ export const Floor = ({ edges }) => {
 
   // Textures
   const textures = useTexture({
-    map: "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Color.jpg",
-    normalMap: "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_NormalGL.jpg",
-    roughnessMap: "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Roughness.jpg",
+    map: "textures/GreyCarpet2/map.jpg",
+    aoMap: "textures/GreyCarpet2/ao.jpg",
+    normalMap: "textures/GreyCarpet2/normal.jpg",
+    roughnessMap: "textures/GreyCarpet2/roughness.jpg",
   });
 
   const cloneTextures = textures => {
@@ -28,7 +29,7 @@ export const Floor = ({ edges }) => {
       const texture = textures[key];
       const textureClone = texture.clone();
       textureClone.rotation = Math.PI / 2;
-      textureClone.repeat.set(0.3, 0.3);
+      textureClone.repeat.set(0.7, 0.7); // 0.3 by default, or if texture has a scale, use that
       textureClone.wrapS = THREE.RepeatWrapping;
       textureClone.wrapT = THREE.RepeatWrapping;
       clonedTextures[key] = textureClone;
@@ -40,7 +41,7 @@ export const Floor = ({ edges }) => {
 
   return (
     <group>
-      <mesh rotation-x={Math.PI / 2} position-y={0}>
+      <mesh rotation-x={Math.PI / 2} position-y={0} userData={id}>
         <shapeGeometry args={[floor]} />
         <meshStandardMaterial side={THREE.BackSide} {...finalTextures} />
       </mesh>

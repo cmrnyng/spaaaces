@@ -1,0 +1,96 @@
+[
+  {
+    "name": "woodPlanks",
+    "urls": {
+      "map": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Color.jpg",
+      "normalMap": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_NormalGL.jpg",
+      "roughnessMap": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Roughness.jpg"
+    }
+  },
+  {
+    "name": "woodPattern",
+    "urls": {
+      "map": "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_Color.jpg",
+      "aoMap": "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_AmbientOcclusion.jpg",
+      "normalMap": "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_NormalGL.jpg",
+      "roughnessMap": "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_Roughness.jpg"
+    }
+  },
+  {
+    "name": "woodPlanks1",
+    "urls": {
+      "map": "textures/WoodFloor036_2K-JPG/WoodFloor036_2K-JPG_Color.jpg",
+      "aoMap": "textures/WoodFloor036_2K-JPG/WoodFloor036_2K-JPG_AmbientOcclusion.jpg",
+      "normalMap": "textures/WoodFloor036_2K-JPG/WoodFloor036_2K-JPG_NormalGL.jpg",
+      "roughnessMap": "textures/WoodFloor036_2K-JPG/WoodFloor036_2K-JPG_Roughness.jpg"
+    }
+  },
+  {
+    "name": "woodSquares",
+    "urls": {
+      "map": "textures/WoodFloor054_2K-JPG/WoodFloor054_2K-JPG_Color.jpg",
+      "aoMap": "textures/WoodFloor054_2K-JPG/WoodFloor054_2K-JPG_AmbientOcclusion.jpg",
+      "normalMap": "textures/WoodFloor054_2K-JPG/WoodFloor054_2K-JPG_NormalGL.jpg",
+      "roughnessMap": "textures/WoodFloor054_2K-JPG/WoodFloor054_2K-JPG_Roughness.jpg"
+    }
+  },
+  {
+    "name": "tiles",
+    "urls": {
+      "map": "textures/Tiles_014_SD/Tiles_014_COLOR.jpg",
+      "aoMap": "textures/Tiles_014_SD/Tiles_014_OCC.jpg",
+      "normalMap": "textures/Tiles_014_SD/Tiles_014_NORM.jpg",
+      "roughnessMap": "textures/Tiles_014_SD/Tiles_014_ROUGH.jpg"
+    },
+    "scale": 0.7
+  },
+  {
+    "name": "woodPlanks2",
+    "urls": {
+      "map": "textures/WoodPlanks2/map.jpg",
+      "aoMap": "textures/WoodPlanks2/ao.jpg",
+      "normalMap": "textures/WoodPlanks2/normal.jpg",
+      "roughnessMap": "textures/WoodPlanks2/roughness.jpg"
+    },
+    "scale": 0.7
+  },
+  {
+    "name": "geometricCarpet",
+    "urls": {
+      "map": "textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_basecolor.jpg",
+      "aoMap": "textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_ambientOcclusion.jpg",
+      "normalMap": "textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_normal.jpg",
+      "roughnessMap": "public/textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_roughness.jpg"
+    },
+    "scale": 0.5
+  },
+  {
+    "name": "blackCarpet",
+    "urls": {
+      "map": "textures/GreyCarpet/map.jpg",
+      "aoMap": "textures/GreyCarpet/ao.jpg",
+      "normalMap": "textures/GreyCarpet/normal.jpg",
+      "roughnessMap": "textures/GreyCarpet/roughness.jpg"
+    }
+  },
+  {
+    "name": "whiteCarpet",
+    "urls": {
+      "map": "textures/WhiteCarpet/map.jpg",
+      "aoMap": "textures/WhiteCarpet/ao.jpg",
+      "normalMap": "textures/WhiteCarpet/normal.jpg",
+      "roughnessMap": "textures/WhiteCarpet/roughness.jpg"
+    },
+    "scale": 0.6
+  },
+  {
+    "name": "greyCarpet",
+    "urls": {
+      "map": "textures/GreyCarpet2/map.jpg",
+      "aoMap": "textures/GreyCarpet2/ao.jpg",
+      "normalMap": "textures/GreyCarpet2/normal.jpg",
+      "roughnessMap": "textures/GreyCarpet2/roughness.jpg"
+    },
+    "scale": 0.7
+  }
+]

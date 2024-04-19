@@ -72,3 +72,43 @@ view-hidden {
   user-select: none;
   pointer-events: none;
 }
+
+.popup > div {
+  font-family: Helvetica, Arial;
+  position: absolute;
+  background: #0000006b;
+  color: white;
+  width: 200px;
+  height: 100px;
+  padding: 15px;
+  white-space: nowrap;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: center;
+  align-items: center; */
+  backdrop-filter: blur(5px);
+  overflow-y: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  user-select: none;
+}
+
+/* .popup > div::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -15px;
+  border-width: 15px;
+  border-style: solid;
+  border-color: #0000006b transparent transparent transparent;
+} */
+
+.thumbnail {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  margin: 10px;
+  box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
