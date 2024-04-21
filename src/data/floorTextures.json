@@ -5,7 +5,8 @@
       "map": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Color.jpg",
       "normalMap": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_NormalGL.jpg",
       "roughnessMap": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Roughness.jpg"
-    }
+    },
+    "scale": 0.3
   },
   {
     "name": "woodPattern",
@@ -14,7 +15,8 @@
       "aoMap": "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_AmbientOcclusion.jpg",
       "normalMap": "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_NormalGL.jpg",
       "roughnessMap": "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_Roughness.jpg"
-    }
+    },
+    "scale": 0.3
   },
   {
     "name": "woodPlanks1",
@@ -23,7 +25,8 @@
       "aoMap": "textures/WoodFloor036_2K-JPG/WoodFloor036_2K-JPG_AmbientOcclusion.jpg",
       "normalMap": "textures/WoodFloor036_2K-JPG/WoodFloor036_2K-JPG_NormalGL.jpg",
       "roughnessMap": "textures/WoodFloor036_2K-JPG/WoodFloor036_2K-JPG_Roughness.jpg"
-    }
+    },
+    "scale": 0.3
   },
   {
     "name": "woodSquares",
@@ -32,7 +35,8 @@
       "aoMap": "textures/WoodFloor054_2K-JPG/WoodFloor054_2K-JPG_AmbientOcclusion.jpg",
       "normalMap": "textures/WoodFloor054_2K-JPG/WoodFloor054_2K-JPG_NormalGL.jpg",
       "roughnessMap": "textures/WoodFloor054_2K-JPG/WoodFloor054_2K-JPG_Roughness.jpg"
-    }
+    },
+    "scale": 0.3
   },
   {
     "name": "tiles",
@@ -71,7 +75,8 @@
       "aoMap": "textures/GreyCarpet/ao.jpg",
       "normalMap": "textures/GreyCarpet/normal.jpg",
       "roughnessMap": "textures/GreyCarpet/roughness.jpg"
-    }
+    },
+    "scale": 0.3
   },
   {
     "name": "whiteCarpet",

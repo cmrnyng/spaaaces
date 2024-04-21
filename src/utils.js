@@ -110,3 +110,26 @@ export const cycle = (arr, shift) => {
   }
   return r;
 };
+
+const obj = {
+  id: 393,
+  name: "something",
+  material: {
+    map: "the map",
+    blendSrc: "blend source",
+    aoMap: "the aoMap",
+    banana: "the banana",
+    normalMap: "the normalMap",
+    blendColor: "some colour",
+  },
+};
+
+const urls = {
+  map: "new map",
+  aoMap: "new aoMap",
+  normalMap: "new normalMap",
+};
+
+Object.assign(obj.material, urls);
+
+console.log(obj);

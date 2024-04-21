@@ -189,13 +189,13 @@ export const Wall = ({ edge, orphan, colour }) => {
   };
 
   const urls2 = {
-    map: "textures/Beige/map.jpg",
-    aoMap: "textures/Beige/ao.jpg",
-    normalMap: "textures/Beige/normal.jpg",
-    roughnessMap: "textures/Beige/roughness.jpg",
+    map: "textures/Wall_Interior_001_SD/map.jpg",
+    aoMap: "textures/Wall_Interior_001_SD/ao.jpg",
+    normalMap: "textures/Wall_Interior_001_SD/normal.jpg",
+    roughnessMap: "textures/Wall_Interior_001_SD/roughness.jpg",
   };
 
-  const textures = useTexture(urls);
+  const textures = useTexture(urls2);
 
   // We will have a store for textures, which will essentially be an array of objects or an object with {id: texture}, and each time
   // this component is rendered, it will use the id to find the texture corresponding to that id. This store will be updated when the
@@ -270,6 +270,8 @@ export const Wall = ({ edge, orphan, colour }) => {
 
   const eventHandler = e => {
     // setMenu(!menu);
+    console.log(e);
+    if (e.delta > 5) return;
     useSelect.setState({ selection: { el: e.eventObject, type: "wall" } });
   };
 
@@ -278,15 +280,12 @@ export const Wall = ({ edge, orphan, colour }) => {
   // }, []);
 
   return (
-    <>
-      <mesh
-        geometry={geom}
-        material={materials}
-        userData={{ id, type: "wall" }}
-        ref={wallRef}
-        onClick={eventHandler}
-      />
-      {menu && <Html position={geom.boundingSphere.center}>Test</Html>}
-    </>
+    <mesh
+      geometry={geom}
+      material={materials}
+      userData={{ id, type: "wall" }}
+      ref={wallRef}
+      onClick={eventHandler}
+    />
   );
 };

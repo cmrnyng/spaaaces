@@ -24,7 +24,7 @@ export const Experience = () => {
   const boxGeo = useRef();
 
   const dirLight = useRef();
-  useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
+  // useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
 
   // Conversion into Three.js coords
   const corners = unconvertedCorners.map(c => ({ x: c.x / 40, y: c.y / 40, id: c.id }));
@@ -41,7 +41,6 @@ export const Experience = () => {
   // }));
 
   const rooms = roomIds.map(room => room.map(id => corners.find(c => c.id === id)));
-  console.log(rooms);
 
   const getWalls = room =>
     walls.filter(
@@ -113,8 +112,10 @@ export const Experience = () => {
         minDistance={1}
         maxDistance={10}
         target-y={1.35}
+        panSpeed={0.7}
+        rotateSpeed={0.7}
       />
-      <axesHelper args={[2, 2, 2]} />
+      {/* <axesHelper args={[2, 2, 2]} /> */}
       <Grid position={[0, -0.01, 0]} args={gridSize} {...gridConfig} />
       <directionalLight ref={dirLight} position={[0, 20, 0]} />
       <ambientLight intensity={1.3} />

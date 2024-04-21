@@ -17,10 +17,10 @@ export const Floor = ({ edges, id }) => {
 
   // Textures
   const textures = useTexture({
-    map: "textures/GreyCarpet2/map.jpg",
-    aoMap: "textures/GreyCarpet2/ao.jpg",
-    normalMap: "textures/GreyCarpet2/normal.jpg",
-    roughnessMap: "textures/GreyCarpet2/roughness.jpg",
+    map: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_Color.jpg",
+    aoMap: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_AmbientOcclusion.jpg",
+    normalMap: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_NormalGL.jpg",
+    roughnessMap: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_Roughness.jpg",
   });
 
   const cloneTextures = textures => {
@@ -29,7 +29,7 @@ export const Floor = ({ edges, id }) => {
       const texture = textures[key];
       const textureClone = texture.clone();
       textureClone.rotation = Math.PI / 2;
-      textureClone.repeat.set(0.7, 0.7); // 0.3 by default, or if texture has a scale, use that
+      textureClone.repeat.set(0.3, 0.3); // 0.3 by default, or if texture has a scale, use that
       textureClone.wrapS = THREE.RepeatWrapping;
       textureClone.wrapT = THREE.RepeatWrapping;
       clonedTextures[key] = textureClone;
