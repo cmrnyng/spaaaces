@@ -3,6 +3,7 @@
     "name": "woodPlanks",
     "urls": {
       "map": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Color.jpg",
+      "aoMap": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_AO.jpg",
       "normalMap": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_NormalGL.jpg",
       "roughnessMap": "textures/WoodFloor004_2K-JPG/WoodFloor004_2K-JPG_Roughness.jpg"
     },

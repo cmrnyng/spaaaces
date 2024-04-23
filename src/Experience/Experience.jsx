@@ -7,7 +7,7 @@ import {
   Edges,
   useSelect,
 } from "@react-three/drei";
-import { useLoader } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { useRef, useEffect } from "react";
 import { useStore } from "../store.js";
 import { Perf } from "r3f-perf";

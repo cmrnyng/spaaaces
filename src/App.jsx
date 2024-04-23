@@ -2,6 +2,7 @@ import { useState } from "react";
 import UI from "./UI.jsx";
 import { DesignView } from "./DesignView.jsx";
 import { FloorplanEditor } from "./FloorplanEditor.jsx";
+import { useSelect } from "./selection.js";
 
 export default function App() {
   const [designView, setDesignView] = useState(true);
@@ -14,6 +15,7 @@ export default function App() {
       setStoreUpdated(false);
     }
     setDesignView(!designView);
+    useSelect.setState({ selection: null });
   };
 
   return (

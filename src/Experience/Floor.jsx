@@ -1,52 +1,75 @@
 import * as THREE from "three";
 import { useTexture } from "@react-three/drei";
+import { useMemo } from "react";
+import { useSelect } from "../selection.js";
+import { TextureLoader } from "three/src/loaders/TextureLoader.js";
+import textureData from "../data/floorTextures.json";
 
 export const Floor = ({ edges, id }) => {
-  // Floor
-  const floorPts = edges.map(edge => {
-    const i = edge.interiorStart;
-    return new THREE.Vector2(i.x, i.y);
-  });
-  const floor = new THREE.Shape(floorPts);
+  const globalTextures = useSelect.getState().textures;
+  const textureLoader = new TextureLoader();
 
-  const outerFloorPts = edges.map(edge => {
-    const i = edge.exteriorStart;
-    return new THREE.Vector2(i.x, i.y);
-  });
-  const outerFloor = new THREE.Shape(outerFloorPts);
+  const floors = useMemo(() => {
+    const floorPts = edges.map(edge => {
+      const i = edge.interiorStart;
+      return new THREE.Vector2(i.x, i.y);
+    });
+    const floor = new THREE.Shape(floorPts);
 
-  // Textures
-  const textures = useTexture({
-    map: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_Color.jpg",
-    aoMap: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_AmbientOcclusion.jpg",
-    normalMap: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_NormalGL.jpg",
-    roughnessMap: "textures/WoodFloor023_2K-JPG/WoodFloor023_2K-JPG_Roughness.jpg",
-  });
+    const outerFloorPts = edges.map(edge => {
+      const i = edge.exteriorStart;
+      return new THREE.Vector2(i.x, i.y);
+    });
+    const outerFloor = new THREE.Shape(outerFloorPts);
 
-  const cloneTextures = textures => {
-    const clonedTextures = {};
+    return { floor, outerFloor };
+  }, []);
+
+  const textures = useMemo(() => {
+    let currentTexture;
+    if (globalTextures[id]) {
+      currentTexture = textureData.find(tex => tex.name === globalTextures[id]);
+    } else {
+      currentTexture = textureData.find(tex => tex.name === "woodPattern");
+    }
+
+    const textures = {
+      map: textureLoader.load(currentTexture.urls.map),
+      aoMap: textureLoader.load(currentTexture.urls.aoMap),
+      normalMap: textureLoader.load(currentTexture.urls.normalMap),
+      roughnessMap: textureLoader.load(currentTexture.urls.roughnessMap),
+    };
+
     for (const key in textures) {
       const texture = textures[key];
-      const textureClone = texture.clone();
-      textureClone.rotation = Math.PI / 2;
-      textureClone.repeat.set(0.3, 0.3); // 0.3 by default, or if texture has a scale, use that
-      textureClone.wrapS = THREE.RepeatWrapping;
-      textureClone.wrapT = THREE.RepeatWrapping;
-      clonedTextures[key] = textureClone;
+      texture.rotation = Math.PI / 2;
+      texture.repeat.set(currentTexture.scale, currentTexture.scale);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      if (key === "map") texture.colorSpace = THREE.SRGBColorSpace;
+      texture.needsUpdate = true;
     }
-    return clonedTextures;
-  };
+    return textures;
+  }, []);
 
-  const finalTextures = cloneTextures(textures);
+  const changeTexture = e => {
+    if (e.delta > 5) return;
+    useSelect.setState({ selection: { obj: e.eventObject } });
+  };
 
   return (
     <group>
-      <mesh rotation-x={Math.PI / 2} position-y={0} userData={id}>
-        <shapeGeometry args={[floor]} />
-        <meshStandardMaterial side={THREE.BackSide} {...finalTextures} />
+      <mesh
+        rotation-x={Math.PI / 2}
+        position-y={0}
+        userData={{ id, type: "floor" }}
+        onClick={changeTexture}
+      >
+        <shapeGeometry args={[floors.floor]} />
+        <meshStandardMaterial side={THREE.BackSide} {...textures} />
       </mesh>
       <mesh rotation-x={Math.PI / 2} position-y={-0.001}>
-        <shapeGeometry args={[outerFloor]} />
+        <shapeGeometry args={[floors.outerFloor]} />
         <meshStandardMaterial side={THREE.BackSide} color={"#d3d3d3"} />
       </mesh>
     </group>

@@ -1,21 +1,28 @@
 import * as THREE from "three";
 import * as utils from "../utils.js";
 import { useEffect, useRef, useMemo, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { useTexture, Edges, Html } from "@react-three/drei";
 import { useSelect } from "../selection.js";
 import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils.js";
+// import { TextureLoader } from "three/src/loaders/TextureLoader.js";
 import textureData from "../data/wallTextures.json";
 
 const height = 2.7;
 
-export const Wall = ({ edge, orphan, colour }) => {
-  console.log("wall render");
+export const Wall = ({ edge, orphan }) => {
+  // console.log("wall render");
   const { interiorStart, interiorEnd, exteriorStart, exteriorEnd, id } = edge;
+  const length = utils.distance(interiorStart.x, interiorStart.y, interiorEnd.x, interiorEnd.y);
   const wallRef = useRef();
+  const globalTextures = useSelect.getState().textures;
 
-  const [vis, setVis] = useState(true);
-  const [menu, setMenu] = useState(false);
+  const loadingManager = new THREE.LoadingManager();
+  const textureLoader = new THREE.TextureLoader(loadingManager);
+
+  loadingManager.onLoad = () => {
+    console.log("texture loaded");
+  };
 
   const geom = useMemo(() => {
     let interiorTransform = new THREE.Matrix4();
@@ -168,7 +175,10 @@ export const Wall = ({ edge, orphan, colour }) => {
     );
 
     // Creating groups
-    const nonIndexedGeometries = geometries.map(geometry => geometry.toNonIndexed());
+    const nonIndexedGeometries = geometries.map(geometry => {
+      if (geometry.index) return geometry.toNonIndexed();
+      return geometry;
+    });
     const geom = BufferGeometryUtils.mergeGeometries(nonIndexedGeometries);
     geom.clearGroups();
     geom.addGroup(0, 6, 0);
@@ -181,45 +191,33 @@ export const Wall = ({ edge, orphan, colour }) => {
     return geom;
   }, []);
 
-  const urls = {
-    map: "textures/Wood_Wall_003_SD/Wood_Wall_003_basecolor.jpg",
-    aoMap: "textures/Wood_Wall_003_SD/Wood_Wall_003_ambientOcclusion.jpg",
-    normalMap: "textures/Wood_Wall_003_SD/Wood_Wall_003_normal.jpg",
-    roughnessMap: "textures/Wood_Wall_003_SD/Wood_Wall_003_roughness.jpg",
-  };
-
-  const urls2 = {
-    map: "textures/Wall_Interior_001_SD/map.jpg",
-    aoMap: "textures/Wall_Interior_001_SD/ao.jpg",
-    normalMap: "textures/Wall_Interior_001_SD/normal.jpg",
-    roughnessMap: "textures/Wall_Interior_001_SD/roughness.jpg",
-  };
-
-  const textures = useTexture(urls2);
-
-  // We will have a store for textures, which will essentially be an array of objects or an object with {id: texture}, and each time
-  // this component is rendered, it will use the id to find the texture corresponding to that id. This store will be updated when the
-  // user changes the texture, and we will have a default texture for each wall.
   const materials = useMemo(() => {
     // Textures
-    const length = utils.distance(interiorStart.x, interiorStart.y, interiorEnd.x, interiorEnd.y);
-    const cloneTextures = textures => {
-      const clonedTextures = {};
-      // Iterate over each texture in the textures object
-      for (const key in textures) {
-        const texture = textures[key];
-        const textureClone = texture.clone();
-        textureClone.repeat.x = length / height;
-        textureClone.wrapS = THREE.RepeatWrapping;
-        clonedTextures[key] = textureClone;
-      }
-      return clonedTextures;
+    let currentTexture;
+    if (globalTextures[id]) {
+      currentTexture = textureData.find(tex => tex.name === globalTextures[id]);
+    } else {
+      currentTexture = textureData.find(tex => tex.name === "panelled");
+    }
+
+    const textures = {
+      map: textureLoader.load(currentTexture.urls.map),
+      aoMap: textureLoader.load(currentTexture.urls.aoMap),
+      normalMap: textureLoader.load(currentTexture.urls.normalMap),
+      roughnessMap: textureLoader.load(currentTexture.urls.roughnessMap),
     };
-    const finalTextures = cloneTextures(textures);
+
+    for (const key in textures) {
+      const texture = textures[key];
+      texture.repeat.x = length / height;
+      texture.wrapS = THREE.RepeatWrapping;
+      if (key === "map") texture.colorSpace = THREE.SRGBColorSpace;
+      texture.needsUpdate = true;
+    }
 
     // Materials
     const texturedMaterial = new THREE.MeshStandardMaterial({
-      ...finalTextures,
+      ...textures,
       side: THREE.DoubleSide,
     });
     const sideMaterial = new THREE.MeshStandardMaterial({
@@ -268,11 +266,10 @@ export const Wall = ({ edge, orphan, colour }) => {
   // Make it so that if this is the wall set as the selection, and the result of updateVisibility(camera) is false, clear the selection
   // by setting selection to null
 
-  const eventHandler = e => {
+  const changeTexture = e => {
     // setMenu(!menu);
-    console.log(e);
     if (e.delta > 5) return;
-    useSelect.setState({ selection: { el: e.eventObject, type: "wall" } });
+    useSelect.setState({ selection: { obj: e.eventObject, length, height } });
   };
 
   // useEffect(() => {
@@ -285,7 +282,7 @@ export const Wall = ({ edge, orphan, colour }) => {
       material={materials}
       userData={{ id, type: "wall" }}
       ref={wallRef}
-      onClick={eventHandler}
+      onClick={changeTexture}
     />
   );
 };
