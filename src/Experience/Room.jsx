@@ -7,6 +7,7 @@ import { useRef, useEffect, useMemo } from "react";
 const wallThickness = 0.08;
 
 export const Room = ({ room, walls }) => {
+  console.log("room render");
   const finalEdges = useMemo(() => {
     let corners = room;
 

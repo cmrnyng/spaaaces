@@ -65,7 +65,7 @@
       "map": "textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_basecolor.jpg",
       "aoMap": "textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_ambientOcclusion.jpg",
       "normalMap": "textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_normal.jpg",
-      "roughnessMap": "public/textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_roughness.jpg"
+      "roughnessMap": "textures/Fabric_Carpet_001_SD/Fabric_Carpet_001_roughness.jpg"
     },
     "scale": 0.5
   },

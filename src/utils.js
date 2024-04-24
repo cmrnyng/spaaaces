@@ -123,28 +123,3 @@ const obj = {
     blendColor: "some colour",
   },
 };
-
-// const urls = {
-//   map: "new map",
-//   aoMap: "new aoMap",
-//   normalMap: "new normalMap",
-// };
-
-// Object.assign(obj.material, urls);
-
-// console.log(obj);
-
-// const textures = {
-//   "003": "woodWall",
-//   "005": "stoneWall",
-//   "008": "brickWall",
-// };
-
-// const setTextures = (id, textureName) => {
-//   textures.tex[0] = tex[1];
-//   return textures;
-// };
-
-// setTextures(["007", "bananaWall"]);
-
-// console.log(textures);
