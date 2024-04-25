@@ -8,6 +8,13 @@ import { OrphanWall } from "./OrphanWall.jsx";
 import { PopupMenu } from "./PopupMenu.jsx";
 import * as THREE from "three";
 
+const mainLoadingManager = new THREE.LoadingManager();
+mainLoadingManager.onProgress = (itemUrl, itemsLoaded, itemsTotal) => {
+  const progress = itemsLoaded / itemsTotal;
+  // console.log(`Loading progress: ${Math.round(progress * 100)}%`);
+  console.log(`Loading texture ${itemUrl} | ${itemsLoaded} / ${itemsTotal}`);
+};
+
 export const Experience = () => {
   console.log("experience render");
   const wallIds = useStore.getState().walls;
@@ -75,11 +82,13 @@ export const Experience = () => {
 
       {rooms.map((room, i) => {
         const roomWalls = getWalls(room);
-        return <Room key={i} room={room} walls={roomWalls} />;
+        return (
+          <Room key={i} room={room} walls={roomWalls} mainLoadingManager={mainLoadingManager} />
+        );
       })}
 
       {orphanWalls.map((wall, i) => (
-        <OrphanWall key={i} wall={wall} />
+        <OrphanWall key={i} wall={wall} mainLoadingManager={mainLoadingManager} />
       ))}
 
       <PopupMenu />

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { useLoader } from "@react-three/fiber";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useSelect } from "../selection.js";
 import { TextureLoader } from "three/src/loaders/TextureLoader.js";
 import textureData from "../data/floorTextures.json";
@@ -8,7 +8,15 @@ import textureData from "../data/floorTextures.json";
 export const Floor = ({ edges, id }) => {
   console.log("floor render");
   const globalTextures = useSelect.getState().textures;
-  const textureLoader = new THREE.TextureLoader();
+  const [isReady2, setIsReady2] = useState(false);
+
+  const loadingManager = new THREE.LoadingManager();
+  const textureLoader = new THREE.TextureLoader(loadingManager);
+  useEffect(() => {
+    loadingManager.onLoad = () => {
+      setIsReady2(true);
+    };
+  }, []);
 
   const floors = useMemo(() => {
     const floorPts = edges.map(edge => {
@@ -33,19 +41,19 @@ export const Floor = ({ edges, id }) => {
     currentTexture = textureData.find(tex => tex.name === "woodPattern");
   }
 
-  // const rawTextures = {
-  // 	map: textureLoader.load(currentTexture.urls.map),
-  // 	aoMap: textureLoader.load(currentTexture.urls.aoMap),
-  // 	normalMap: textureLoader.load(currentTexture.urls.normalMap),
-  // 	roughnessMap: textureLoader.load(currentTexture.urls.roughnessMap),
-  // };
-
   const rawTextures = {
-    map: useLoader(TextureLoader, currentTexture.urls.map),
-    aoMap: useLoader(TextureLoader, currentTexture.urls.aoMap),
-    normalMap: useLoader(TextureLoader, currentTexture.urls.normalMap),
-    roughnessMap: useLoader(TextureLoader, currentTexture.urls.roughnessMap),
+    map: textureLoader.load(currentTexture.urls.map),
+    aoMap: textureLoader.load(currentTexture.urls.aoMap),
+    normalMap: textureLoader.load(currentTexture.urls.normalMap),
+    roughnessMap: textureLoader.load(currentTexture.urls.roughnessMap),
   };
+
+  // const rawTextures = {
+  //   map: useLoader(TextureLoader, currentTexture.urls.map),
+  //   aoMap: useLoader(TextureLoader, currentTexture.urls.aoMap),
+  //   normalMap: useLoader(TextureLoader, currentTexture.urls.normalMap),
+  //   roughnessMap: useLoader(TextureLoader, currentTexture.urls.roughnessMap),
+  // };
 
   const textures = {};
   for (const key in rawTextures) {
@@ -64,6 +72,8 @@ export const Floor = ({ edges, id }) => {
     if (e.delta > 5) return;
     useSelect.setState({ selection: { obj: e.eventObject } });
   };
+
+  if (!isReady2) return;
 
   return (
     <group>

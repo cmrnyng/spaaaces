@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import * as utils from "../utils.js";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { useSelect } from "../selection.js";
 import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils.js";
@@ -9,19 +9,21 @@ import textureData from "../data/wallTextures.json";
 
 const height = 2.7;
 
-export const Wall = ({ edge, orphan }) => {
+export const Wall = ({ edge, orphan, mainLoadingManager }) => {
   console.log("wall render");
   const { interiorStart, interiorEnd, exteriorStart, exteriorEnd, id } = edge;
   const len = utils.distance(interiorStart.x, interiorStart.y, interiorEnd.x, interiorEnd.y);
   const wallRef = useRef();
   const globalTextures = useSelect.getState().textures;
+  const [isReady, setIsReady] = useState(false);
 
-  // const loadingManager = new THREE.LoadingManager();
-  // const textureLoader = new THREE.TextureLoader(loadingManager);
-
-  // loadingManager.onLoad = () => {
-  // 	console.log("texture loaded");
-  // };
+  const loadingManager = new THREE.LoadingManager();
+  const textureLoader = new THREE.TextureLoader(loadingManager);
+  useEffect(() => {
+    loadingManager.onLoad = () => {
+      setIsReady(true);
+    };
+  }, []);
 
   const geom = useMemo(() => {
     let interiorTransform = new THREE.Matrix4();
@@ -198,19 +200,19 @@ export const Wall = ({ edge, orphan }) => {
     currentTexture = textureData.find(tex => tex.name === "panelled");
   }
 
-  // const rawTextures = {
-  // 	map: textureLoader.load(currentTexture.urls.map),
-  // 	aoMap: textureLoader.load(currentTexture.urls.aoMap),
-  // 	normalMap: textureLoader.load(currentTexture.urls.normalMap),
-  // 	roughnessMap: textureLoader.load(currentTexture.urls.roughnessMap),
-  // };
-
   const rawTextures = {
-    map: useLoader(TextureLoader, currentTexture.urls.map),
-    aoMap: useLoader(TextureLoader, currentTexture.urls.aoMap),
-    normalMap: useLoader(TextureLoader, currentTexture.urls.normalMap),
-    roughnessMap: useLoader(TextureLoader, currentTexture.urls.roughnessMap),
+    map: textureLoader.load(currentTexture.urls.map),
+    aoMap: textureLoader.load(currentTexture.urls.aoMap),
+    normalMap: textureLoader.load(currentTexture.urls.normalMap),
+    roughnessMap: textureLoader.load(currentTexture.urls.roughnessMap),
   };
+
+  // const rawTextures = {
+  //   map: useLoader(TextureLoader, currentTexture.urls.map),
+  //   aoMap: useLoader(TextureLoader, currentTexture.urls.aoMap),
+  //   normalMap: useLoader(TextureLoader, currentTexture.urls.normalMap),
+  //   roughnessMap: useLoader(TextureLoader, currentTexture.urls.roughnessMap),
+  // };
 
   const clonedTextures = {};
   for (const key in rawTextures) {
@@ -269,6 +271,7 @@ export const Wall = ({ edge, orphan }) => {
   // such as windows, will be invisible
 
   useFrame(({ camera }) => {
+    if (!isReady) return;
     wallRef.current.visible = updateVisibility(camera);
     // setVis(updateVisibility(camera));
   });
@@ -286,13 +289,17 @@ export const Wall = ({ edge, orphan }) => {
   //   console.log(wallRef);
   // }, []);
 
+  if (!isReady) return;
+
   return (
-    <mesh
-      geometry={geom}
-      material={materials}
-      userData={{ id, type: "wall" }}
-      ref={wallRef}
-      onClick={changeTexture}
-    />
+    <>
+      <mesh
+        geometry={geom}
+        material={materials}
+        userData={{ id, type: "wall" }}
+        ref={wallRef}
+        onClick={changeTexture}
+      />
+    </>
   );
 };

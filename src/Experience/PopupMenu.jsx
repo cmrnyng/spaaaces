@@ -146,7 +146,7 @@ export const PopupMenu = () => {
       obj.material.roughnessMap.dispose();
       Object.assign(obj.material, combinedTextures);
     }
-    obj.material.needsUpdate = true;
+    // obj.material.needsUpdate = true;
     setTextures(obj.userData.id, textureName);
   };
 

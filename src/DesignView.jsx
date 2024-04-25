@@ -27,9 +27,9 @@ export const DesignView = () => {
         }}
         onPointerMissed={eventHandler}
       >
-        <Suspense fallback={<Loader />}>
-          <Experience />
-        </Suspense>
+        {/* <Suspense fallback={null}> */}
+        <Experience />
+        {/* </Suspense> */}
       </Canvas>
     </>
   );

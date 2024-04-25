@@ -6,7 +6,7 @@ import { useRef, useEffect, useMemo } from "react";
 
 const wallThickness = 0.08;
 
-export const Room = ({ room, walls }) => {
+export const Room = ({ room, walls, mainLoadingManager }) => {
   console.log("room render");
   const finalEdges = useMemo(() => {
     let corners = room;
@@ -121,9 +121,9 @@ export const Room = ({ room, walls }) => {
 
   return (
     <group>
-      <Floor edges={finalEdges} id={floorID} />
+      <Floor edges={finalEdges} id={floorID} mainLoadingManager={mainLoadingManager} />
       {finalEdges.map((edge, i) => {
-        return <Wall key={i} edge={edge} orphan={false} />;
+        return <Wall key={i} edge={edge} orphan={false} mainLoadingManager={mainLoadingManager} />;
       })}
     </group>
   );

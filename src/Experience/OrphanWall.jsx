@@ -5,7 +5,7 @@ import * as utils from "../utils.js";
 const height = 2.7;
 const wallThickness = 0.08;
 
-export const OrphanWall = ({ wall }) => {
+export const OrphanWall = ({ wall, mainLoadingManager }) => {
   const edge = useMemo(() => {
     const { start, end } = wall;
 
@@ -40,5 +40,5 @@ export const OrphanWall = ({ wall }) => {
     return { interiorStart, interiorEnd, exteriorStart, exteriorEnd, id };
   }, []);
 
-  return <Wall edge={edge} orphan={true} />;
+  return <Wall edge={edge} orphan={true} mainLoadingManager={mainLoadingManager} />;
 };
