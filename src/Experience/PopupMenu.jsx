@@ -10,6 +10,7 @@ export const PopupMenu = () => {
 	console.log("popupmenu render");
 	const sel = useSelect(state => state.selection);
 	const setTextures = useSelect(state => state.setTextures);
+	const globalTextures = useSelect.getState().textures;
 	const prevSel = useRef(null);
 	const popup = useRef();
 
@@ -196,7 +197,7 @@ export const PopupMenu = () => {
 								texture={tex.name}
 								draggable="false"
 								className="thumbnail"
-								src={tex.urls.map}
+								src={tex.thumbnail}
 								// onMouseUp={changeTexture}
 								// onClick={selectTexture}
 							/>

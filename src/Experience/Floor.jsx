@@ -8,13 +8,13 @@ import textureData from "../data/floorTextures.json";
 export const Floor = ({ edges, id }) => {
 	console.log("floor render");
 	const globalTextures = useSelect.getState().textures;
-	const [isReady2, setIsReady2] = useState(false);
+	const [isReady, setIsReady] = useState(false);
 
 	const loadingManager = new THREE.LoadingManager();
 	const textureLoader = new THREE.TextureLoader(loadingManager);
 	useEffect(() => {
 		loadingManager.onLoad = () => {
-			setIsReady2(true);
+			setIsReady(true);
 		};
 	}, []);
 
@@ -73,7 +73,7 @@ export const Floor = ({ edges, id }) => {
 		useSelect.setState({ selection: { obj: e.eventObject } });
 	};
 
-	if (!isReady2) return;
+	if (!isReady) return;
 
 	return (
 		<group>

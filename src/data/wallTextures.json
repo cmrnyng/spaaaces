@@ -1,74 +1,82 @@
 [
-  {
-    "name": "panelled",
-    "urls": {
-      "map": "textures/Wall_Interior_001_SD/map.jpg",
-      "aoMap": "textures/Wall_Interior_001_SD/ao.jpg",
-      "normalMap": "textures/Wall_Interior_001_SD/normal.jpg",
-      "roughnessMap": "textures/Wall_Interior_001_SD/roughness.jpg"
-    }
-  },
-  {
-    "name": "woodWall",
-    "urls": {
-      "map": "textures/Wood_Wall_003_SD/Wood_Wall_003_basecolor.jpg",
-      "aoMap": "textures/Wood_Wall_003_SD/Wood_Wall_003_ambientOcclusion.jpg",
-      "normalMap": "textures/Wood_Wall_003_SD/Wood_Wall_003_normal.jpg",
-      "roughnessMap": "textures/Wood_Wall_003_SD/Wood_Wall_003_roughness.jpg"
-    }
-  },
-  {
-    "name": "concreteBricks",
-    "urls": {
-      "map": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_basecolor.jpg",
-      "aoMap": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_ambientOcclusion.jpg",
-      "normalMap": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_normal.jpg",
-      "roughnessMap": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_roughness.jpg"
-    }
-  },
-  {
-    "name": "cream",
-    "urls": {
-      "map": "textures/Cream/map.jpg",
-      "aoMap": "textures/Cream/ao.jpg",
-      "normalMap": "textures/Cream/normal.jpg",
-      "roughnessMap": "textures/Cream/roughness.jpg"
-    }
-  },
-  {
-    "name": "geometric",
-    "urls": {
-      "map": "textures/Geometric/map.jpg",
-      "aoMap": "textures/Geometric/ao.jpg",
-      "normalMap": "textures/Geometric/normal.jpg",
-      "roughnessMap": "textures/Geometric/roughness.jpg"
-    }
-  },
-  {
-    "name": "beige",
-    "urls": {
-      "map": "textures/Beige/map.jpg",
-      "aoMap": "textures/Beige/ao.jpg",
-      "normalMap": "textures/Beige/normal.jpg",
-      "roughnessMap": "textures/Beige/roughness.jpg"
-    }
-  },
-  {
-    "name": "waves",
-    "urls": {
-      "map": "textures/Waves/map.jpg",
-      "aoMap": "textures/Waves/ao.jpg",
-      "normalMap": "textures/Waves/normal.jpg",
-      "roughnessMap": "textures/Waves/roughness.jpg"
-    }
-  },
-  {
-    "name": "striped",
-    "urls": {
-      "map": "textures/Striped/map.jpg",
-      "aoMap": "textures/Striped/ao.jpg",
-      "normalMap": "textures/Striped/normal.jpg",
-      "roughnessMap": "textures/Striped/roughness.jpg"
-    }
-  }
+	{
+		"name": "panelled",
+		"urls": {
+			"map": "textures/Wall_Interior_001_SD/map.jpg",
+			"aoMap": "textures/Wall_Interior_001_SD/ao.jpg",
+			"normalMap": "textures/Wall_Interior_001_SD/normal.jpg",
+			"roughnessMap": "textures/Wall_Interior_001_SD/roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/panelled.png"
+	},
+	{
+		"name": "woodWall",
+		"urls": {
+			"map": "textures/Wood_Wall_003_SD/Wood_Wall_003_basecolor.jpg",
+			"aoMap": "textures/Wood_Wall_003_SD/Wood_Wall_003_ambientOcclusion.jpg",
+			"normalMap": "textures/Wood_Wall_003_SD/Wood_Wall_003_normal.jpg",
+			"roughnessMap": "textures/Wood_Wall_003_SD/Wood_Wall_003_roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/woodWall.jpg"
+	},
+	{
+		"name": "concreteBricks",
+		"urls": {
+			"map": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_basecolor.jpg",
+			"aoMap": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_ambientOcclusion.jpg",
+			"normalMap": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_normal.jpg",
+			"roughnessMap": "textures/Concrete_Blocks_007_SD/Concrete_Blocks_007_roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/concreteBricks.jpg"
+	},
+	{
+		"name": "cream",
+		"urls": {
+			"map": "textures/Cream/map.jpg",
+			"aoMap": "textures/Cream/ao.jpg",
+			"normalMap": "textures/Cream/normal.jpg",
+			"roughnessMap": "textures/Cream/roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/cream.jpg"
+	},
+	{
+		"name": "geometric",
+		"urls": {
+			"map": "textures/Geometric/map.jpg",
+			"aoMap": "textures/Geometric/ao.jpg",
+			"normalMap": "textures/Geometric/normal.jpg",
+			"roughnessMap": "textures/Geometric/roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/geometric.jpg"
+	},
+	{
+		"name": "beige",
+		"urls": {
+			"map": "textures/Beige/map.jpg",
+			"aoMap": "textures/Beige/ao.jpg",
+			"normalMap": "textures/Beige/normal.jpg",
+			"roughnessMap": "textures/Beige/roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/beige.jpg"
+	},
+	{
+		"name": "waves",
+		"urls": {
+			"map": "textures/Waves/map.jpg",
+			"aoMap": "textures/Waves/ao.jpg",
+			"normalMap": "textures/Waves/normal.jpg",
+			"roughnessMap": "textures/Waves/roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/waves.jpg"
+	},
+	{
+		"name": "striped",
+		"urls": {
+			"map": "textures/Striped/map.jpg",
+			"aoMap": "textures/Striped/ao.jpg",
+			"normalMap": "textures/Striped/normal.jpg",
+			"roughnessMap": "textures/Striped/roughness.jpg"
+		},
+		"thumbnail": "thumbnails/wall/striped.jpg"
+	}
 ]
