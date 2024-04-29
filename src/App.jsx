@@ -20,7 +20,7 @@ export default function App() {
 
   return (
     <>
-      <UI toggleView={toggleView} designView={designView} />
+      <UI toggleView={toggleView} />
       {/* <div
 				style={{
 					display: designView ? "block" : "none",

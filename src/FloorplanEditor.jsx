@@ -30,7 +30,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
   const lastCorner = useRef({});
 
   // Centre the view
-  const centre = () => {
+  const panCentre = () => {
     let [xMin, xMax, yMin, yMax] = [Infinity, -Infinity, Infinity, -Infinity];
 
     corners.current.forEach(({ x, y }) => {
@@ -48,7 +48,32 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         };
   };
 
-  const panOffset = useRef(centre());
+  // Calculate centre and size for 3D view
+  const calcCameraPos = () => {
+    let [xMin, xMax, yMin, yMax] = [Infinity, -Infinity, Infinity, -Infinity];
+
+    corners.current.forEach(({ x, y }) => {
+      xMin = Math.min(xMin, x);
+      xMax = Math.max(xMax, x);
+      yMin = Math.min(yMin, y);
+      yMax = Math.max(yMax, y);
+    });
+
+    let centre;
+    let size;
+
+    if (xMin === Infinity || xMax === -Infinity || yMin === Infinity || yMax === -Infinity) {
+      centre = { x: 0, y: 0 };
+      size = { x: 0, y: 0 };
+    } else {
+      centre = { x: (xMin + xMax) / 2, y: (yMin + yMax) / 2 };
+      size = { x: xMax - xMin, y: yMax - yMin };
+    }
+
+    return { centre, size };
+  };
+
+  const panOffset = useRef(panCentre());
   const mousePosOnClick = useRef({ x: 0, y: 0 });
 
   const [mode, setMode] = useState("draw"); // Fine
@@ -142,7 +167,8 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("wheel", handleWheel);
 
-      setElements(corners.current, walls.current, rooms.current);
+      const cameraPos = calcCameraPos();
+      setElements(corners.current, walls.current, rooms.current, cameraPos);
 
       setStoreUpdated(true);
     };
@@ -958,24 +984,31 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         <button
           className="editor-btn"
           onClick={() => changeMode("move")}
-          style={{ backgroundColor: mode === "move" ? "#e0dfff" : "white" }}
+          // style={{ backgroundColor: mode === "move" ? "#A7DDAC" : "white" }}
         >
-          <img src={moveIcon} className="icon" />
+          <img src={moveIcon} className={`icon ${mode === "move" ? "selected-mode" : ""}`} />
         </button>
         <button
           className="editor-btn"
           onClick={() => changeMode("draw")}
-          style={{ backgroundColor: mode === "draw" ? "#e0dfff" : "white" }}
+          // style={{ backgroundColor: mode === "draw" ? "#A7DDAC" : "white" }}
         >
-          <img src={drawIcon} className="icon" />
+          <img src={drawIcon} className={`icon ${mode === "draw" ? "selected-mode" : ""}`} />
         </button>
         <button
           className="editor-btn"
           onClick={() => changeMode("delete")}
-          style={{ backgroundColor: mode === "delete" ? "#e0dfff" : "white" }}
+          // style={{ backgroundColor: mode === "delete" ? "#A7DDAC" : "white" }}
         >
-          <img src={deleteIcon} className="icon" />
+          <img src={deleteIcon} className={`icon ${mode === "delete" ? "selected-mode" : ""}`} />
         </button>
+        <div
+          className="bg"
+          style={{
+            left:
+              mode === "move" ? "5px" : mode === "draw" ? "50px" : mode === "delete" ? "95px" : "",
+          }}
+        />
       </div>
 
       <canvas

@@ -4,7 +4,8 @@ export const useStore = create(set => ({
   corners: [],
   walls: [],
   rooms: [],
-  setElements: (corners, walls, rooms) => set({ corners, walls, rooms }),
+  origin: { centre: { x: 0, y: 0 }, size: { x: 0, y: 0 } },
+  setElements: (corners, walls, rooms, origin) => set({ corners, walls, rooms, origin }),
 }));
 
 // Store for testing
