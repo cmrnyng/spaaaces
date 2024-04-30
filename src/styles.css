@@ -368,3 +368,36 @@ view-hidden {
 .category-btn.active {
   background-color: #a7ddac;
 }
+
+.items-container hr {
+  margin: 1em 0 1em 0;
+  border: 1px solid #d8d8d8;
+}
+
+.filtered-items {
+  max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 1em;
+  row-gap: 15px;
+  align-items: start;
+  justify-content: start;
+}
+
+/* .filtered-items {
+  max-width: 100%;
+  display: grid;
+} */
+
+.item {
+  width: 200px;
+  height: 200px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: 0.5s ease;
+}
+
+.item:hover {
+  box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px;
+}

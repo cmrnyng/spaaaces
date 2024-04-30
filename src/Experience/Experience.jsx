@@ -7,6 +7,8 @@ import { Room } from "./Room.jsx";
 import { OrphanWall } from "./OrphanWall.jsx";
 import { PopupMenu } from "./PopupMenu.jsx";
 import * as THREE from "three";
+import { FloorItem } from "./FloorItem.jsx";
+import { useSelect } from "../selection.js";
 
 const mainLoadingManager = new THREE.LoadingManager();
 mainLoadingManager.onProgress = (itemUrl, itemsLoaded, itemsTotal) => {
@@ -22,8 +24,7 @@ export const Experience = () => {
   const roomIds = useStore.getState().rooms;
   const { centre, size } = useStore.getState().origin;
 
-  const three = useThree();
-  console.log(three);
+  const items = useSelect(state => state.items);
 
   const dirLight = useRef();
   // useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
@@ -84,6 +85,8 @@ export const Experience = () => {
       <directionalLight ref={dirLight} position={[0, 20, 0]} />
       <ambientLight intensity={1.3} />
 
+      <PopupMenu />
+
       {rooms.map((room, i) => {
         const roomWalls = getWalls(room);
         return (
@@ -95,11 +98,12 @@ export const Experience = () => {
         <OrphanWall key={i} wall={wall} mainLoadingManager={mainLoadingManager} />
       ))}
 
-      <PopupMenu />
-
-      {/* <mesh position={[0, 3.5, 2]} material={materials} ref={boxGeo}>
-        <boxGeometry args={[2.7, 2.7, 2.7]} />
-      </mesh> */}
+      {/* Prevent re-renders from this somehow (maybe have a single component
+          for all models)
+      */}
+      {items.map((item, i) => (
+        <FloorItem key={i} url={item} />
+      ))}
     </>
   );
 };

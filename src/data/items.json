@@ -1,6 +1,38 @@
 [
   {
-    "name": "redChair",
-    "category": "Chairs"
+    "name": "brownChair",
+    "category": "Chairs",
+    "thumbnail": "thumbnails/items/chair.png",
+    "url": "models/chair.glb"
+  },
+  {
+    "name": "miniSofa",
+    "category": "Sofas",
+    "thumbnail": "thumbnails/items/minisofa.png",
+    "url": "models/minisofa.glb"
+  },
+  {
+    "name": "tvStand",
+    "category": "Cabinets",
+    "thumbnail": "thumbnails/items/tvstand.png",
+    "url": "models/tvstand.glb"
+  },
+  {
+    "name": "bokahilla",
+    "category": "Shelving",
+    "thumbnail": "thumbnails/items/bokahilla.png",
+    "url": "models/bokahilla.glb"
+  },
+  {
+    "name": "bookshelf",
+    "category": "Shelving",
+    "thumbnail": "thumbnails/items/bookshelf.png",
+    "url": "models/bookshelf.glb"
+  },
+  {
+    "name": "floorlamp",
+    "category": "Lighting",
+    "thumbnail": "thumbnails/items/floorlamp.png",
+    "url": "models/floorlamp.glb"
   }
 ]

@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import { useSelect } from "../selection.js";
 import items from "../data/items.json";
 
 export const Items = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [filteredItems, setFilteredItems] = useState(items);
+  const addItems = useSelect(state => state.addItems);
+
   const categories = [
     "Chairs",
     "Sofas",
@@ -13,6 +16,8 @@ export const Items = () => {
     "Beds",
     "Shelving",
     "Windows & Doors",
+    "Cabinets",
+    "Lighting",
   ];
 
   const handleFilterSelect = selectedCategory => {
@@ -55,11 +60,16 @@ export const Items = () => {
             </button>
           ))}
         </div>
+        <hr />
         <div className="filtered-items">
           {filteredItems.map((item, i) => (
-            <div className="item" key={i}>
-              Img here
-            </div>
+            <img
+              key={i}
+              className="item"
+              src={item.thumbnail}
+              draggable="false"
+              onClick={() => addItems(item.url)}
+            />
           ))}
         </div>
       </div>

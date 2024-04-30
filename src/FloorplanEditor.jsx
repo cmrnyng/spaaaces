@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useStore } from "./store.js";
+import { useSelect } from "./selection.js";
 import { v4 as uuidv4 } from "uuid";
 import * as utils from "./utils.js";
 import * as dim from "./dim.js";
@@ -110,10 +111,6 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
       // console.log("Active Element:");
       // formPolygon();
       console.log(rooms.current);
-    }
-    if (e.key === "i") {
-      console.log(activeElement.current);
-      checkDirection();
     }
 
     if (e.key === "1") changeMode("move");

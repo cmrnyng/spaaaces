@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { Wall } from "./Wall.jsx";
 import * as utils from "../utils.js";
 
-const height = 2.7;
 const wallThickness = 0.08;
 
 export const OrphanWall = ({ wall, mainLoadingManager }) => {
