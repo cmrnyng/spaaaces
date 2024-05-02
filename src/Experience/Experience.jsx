@@ -1,4 +1,13 @@
-import { OrbitControls, Grid, useHelper, useTexture, Select, Edges } from "@react-three/drei";
+import {
+  OrbitControls,
+  Grid,
+  useHelper,
+  useTexture,
+  Select,
+  Edges,
+  Box,
+  PivotControls,
+} from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useRef, useEffect, Suspense } from "react";
 import { useStore } from "../store.js";
@@ -8,6 +17,7 @@ import { OrphanWall } from "./OrphanWall.jsx";
 import { PopupMenu } from "./PopupMenu.jsx";
 import * as THREE from "three";
 import { FloorItem } from "./FloorItem.jsx";
+import { Furniture } from "./Furniture.jsx";
 import { useSelect } from "../selection.js";
 
 const mainLoadingManager = new THREE.LoadingManager();
@@ -23,8 +33,6 @@ export const Experience = () => {
   const unconvertedCorners = useStore.getState().corners;
   const roomIds = useStore.getState().rooms;
   const { centre, size } = useStore.getState().origin;
-
-  const items = useSelect(state => state.items);
 
   const dirLight = useRef();
   // useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
@@ -69,7 +77,7 @@ export const Experience = () => {
 
   return (
     <>
-      {/* <Perf /> */}
+      <Perf />
       <OrbitControls
         makeDefault
         maxPolarAngle={Math.PI / 2}
@@ -101,9 +109,11 @@ export const Experience = () => {
       {/* Prevent re-renders from this somehow (maybe have a single component
           for all models)
       */}
-      {items.map((item, i) => (
-        <FloorItem key={i} url={item} />
-      ))}
+      <Furniture />
+
+      {/* <PivotControls activeAxes={[true, false, true]} disableScaling={true}>
+        <Box />
+      </PivotControls> */}
     </>
   );
 };

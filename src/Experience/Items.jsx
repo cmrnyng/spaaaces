@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useSelect } from "../selection.js";
 import items from "../data/items.json";
 
-export const Items = () => {
+export const Items = ({ setItemMenu }) => {
+  console.log("items render");
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [filteredItems, setFilteredItems] = useState(items);
   const addItems = useSelect(state => state.addItems);
@@ -45,6 +46,11 @@ export const Items = () => {
     }
   };
 
+  const handleSelect = itemUrl => {
+    addItems(itemUrl);
+    setItemMenu(false);
+  };
+
   return (
     <>
       <h1 className="items-heading">Add Items</h1>
@@ -68,7 +74,7 @@ export const Items = () => {
               className="item"
               src={item.thumbnail}
               draggable="false"
-              onClick={() => addItems(item.url)}
+              onClick={() => handleSelect(item.url)}
             />
           ))}
         </div>

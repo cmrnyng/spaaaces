@@ -2,23 +2,32 @@ import { Experience } from "./Experience/Experience.jsx";
 import { Canvas } from "@react-three/fiber";
 import { useStore } from "./store.js";
 import { useSelect } from "./selection.js";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, memo } from "react";
 import { Loader } from "./Loader.jsx";
 import { Items } from "./Experience/Items.jsx";
 import addIcon from "./assets/add.svg";
+
+const ItemsMemo = memo(Items);
+const ExperienceMemo = memo(Experience);
 
 export const DesignView = () => {
   console.log("designview render");
   const [itemMenu, setItemMenu] = useState(false);
   const wrapper = useRef();
 
+  useEffect(() => {
+    if (!itemMenu) {
+      wrapper.current.scrollTop = 0;
+    }
+  }, [itemMenu]);
+
   const eventHandler = () => {
     useSelect.setState({ selection: null });
   };
 
-  const { centre, size } = useStore.getState().origin;
-
-  // <Canvas shadows camera={{ position: [10, 12, 12], fov: 25 }} dpr={[1, 2]}>
+  const handleCanvasClick = () => {
+    if (itemMenu) setItemMenu(false);
+  };
 
   return (
     <>
@@ -34,9 +43,10 @@ export const DesignView = () => {
           });
         }}
         onPointerMissed={eventHandler}
+        onClick={handleCanvasClick}
       >
         {/* <Suspense fallback={null}> */}
-        <Experience />
+        <ExperienceMemo />
         {/* </Suspense> */}
       </Canvas>
       <div style={{ backgroundColor: "red", width: "50px", height: "50px" }} />
@@ -47,7 +57,7 @@ export const DesignView = () => {
       </div>
       <div ref={wrapper} className={`content-wrapper ${itemMenu ? "show" : ""}`}>
         <div className="content">
-          <Items />
+          <ItemsMemo setItemMenu={setItemMenu} />
         </div>
       </div>
     </>

@@ -111,15 +111,5 @@ export const cycle = (arr, shift) => {
   return r;
 };
 
-const obj = {
-  id: 393,
-  name: "something",
-  material: {
-    map: "the map",
-    blendSrc: "blend source",
-    aoMap: "the aoMap",
-    banana: "the banana",
-    normalMap: "the normalMap",
-    blendColor: "some colour",
-  },
-};
+const items = ["test1"];
+console.log(items.at(-1));

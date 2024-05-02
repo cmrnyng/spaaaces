@@ -1003,7 +1003,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
           className="bg"
           style={{
             left:
-              mode === "move" ? "5px" : mode === "draw" ? "50px" : mode === "delete" ? "95px" : "",
+              mode === "move" ? "5px" : mode === "draw" ? "40px" : mode === "delete" ? "75px" : "",
           }}
         />
       </div>

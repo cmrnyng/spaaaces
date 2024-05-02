@@ -72,8 +72,8 @@ view-hidden {
   background-color: transparent;
   border: none;
   border-radius: 10px;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
   z-index: 2;
 }
@@ -90,8 +90,8 @@ view-hidden {
   position: absolute;
   pointer-events: none;
   /* border: 1px solid black; */
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   background-color: #a7ddac;
   border-radius: 10px;
   left: 50px;
@@ -279,8 +279,8 @@ view-hidden {
   background-color: transparent;
   border: none;
   border-radius: 10px;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
   z-index: 2;
 }
