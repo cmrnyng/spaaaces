@@ -8,17 +8,14 @@ import moveIcon from "./assets/moveicon.svg";
 import drawIcon from "./assets/drawicon.svg";
 import deleteIcon from "./assets/deleteicon.svg";
 
-const previewSnapTolerance = 7;
-const wallSnapTolerance = 7;
 const globalSnapTolerance = 10;
 const cornerSnapTolerance = 10;
 
 // Grid parameters
-const gridSpacing = 20;
+const gridSpacing = 40;
 const gridWidth = 1;
-const gridColour = "#ddd";
+const gridColour = "#E6E6E6";
 
-// May be a good idea to combine multiple refs into one useRef, and destructure them when needed
 export const FloorplanEditor = ({ setStoreUpdated }) => {
   console.log("floorplan render");
   const canvasRef = useRef();
@@ -98,20 +95,6 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         draw();
       }
     }
-    // Console logs
-    if (e.key === "l") {
-      // console.log("Corners:");
-      console.log(corners.current);
-      // console.log("Walls:");
-      // console.log(walls.current);
-      // console.log("Last Corner:");
-      // console.log(lastCorner.current);
-      // console.log("Preview:");
-      // console.log(preview.current);
-      // console.log("Active Element:");
-      // formPolygon();
-      console.log(rooms.current);
-    }
 
     if (e.key === "1") changeMode("move");
     if (e.key === "2") changeMode("draw");
@@ -155,11 +138,6 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
     window.addEventListener("resize", handleResize);
     window.addEventListener("wheel", handleWheel);
 
-    // useStore
-    // useStore.subscribe(state => (walls.current = state.walls));
-    // useStore.subscribe(state => (corners.current = state.corners));
-    // useStore.subscribe(state => (rooms.current = state.rooms));
-
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("wheel", handleWheel);
@@ -173,26 +151,26 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
 
   const drawGrid = context => {
     context.beginPath();
-    context.strokeStyle = "#E6E6E6";
-    context.lineWidth = 1;
+    context.strokeStyle = gridColour;
+    context.lineWidth = gridWidth;
 
     const offsetX = panOffset.current.x;
     const offsetY = panOffset.current.y;
 
-    for (let x = offsetX; x <= context.canvas.width; x += 40) {
+    for (let x = offsetX; x <= context.canvas.width; x += gridSpacing) {
       context.moveTo(x - offsetX, -offsetY);
       context.lineTo(x - offsetX, context.canvas.height + Math.abs(offsetY));
     }
-    for (let x = -offsetX + 40; x <= context.canvas.width; x += 40) {
+    for (let x = -offsetX + gridSpacing; x <= context.canvas.width; x += gridSpacing) {
       context.moveTo(-x - offsetX, -offsetY);
       context.lineTo(-x - offsetX, context.canvas.height + Math.abs(offsetY));
     }
 
-    for (let y = offsetY; y <= context.canvas.height; y += 40) {
+    for (let y = offsetY; y <= context.canvas.height; y += gridSpacing) {
       context.moveTo(-offsetX, y - offsetY);
       context.lineTo(context.canvas.width + Math.abs(offsetX), y - offsetY);
     }
-    for (let y = -offsetY + 40; y <= context.canvas.height; y += 40) {
+    for (let y = -offsetY + gridSpacing; y <= context.canvas.height; y += gridSpacing) {
       context.moveTo(-offsetX, -y - offsetY);
       context.lineTo(context.canvas.width + Math.abs(offsetX), -y - offsetY);
     }

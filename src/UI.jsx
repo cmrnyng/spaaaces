@@ -22,6 +22,7 @@ export default function UI({ toggleView }) {
           <button className="menu-btn">New</button>
         </div>
       </div>
+      <div className="wip-div">Under Development</div>
     </>
   );
 }

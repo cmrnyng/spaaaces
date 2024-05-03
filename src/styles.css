@@ -314,7 +314,7 @@ view-hidden {
 
 .content {
   width: 95%;
-  height: fit-content;
+  height: 3000px;
   color: #303030;
   background-color: #ffffff;
   z-index: 100;
@@ -322,7 +322,7 @@ view-hidden {
   position: relative;
   border-radius: 35px 35px 0 0;
   border: 1px solid #d8d8d8;
-  margin-top: 32em;
+  margin-top: 20%;
   padding: 3.5em;
   display: flex;
   flex-direction: column;
@@ -400,4 +400,27 @@ view-hidden {
 
 .item:hover {
   box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px;
+}
+
+.item-popup {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: blue;
+}
+
+.wip-div {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  padding: 15px;
+  margin: 15px;
+  border-radius: 10px;
+  z-index: 10;
+  box-shadow: 0px 1px 3px rgba(181, 181, 181, 0.4);
+  font-family: "Plus-Jakarta-Sans";
+  font-weight: 600;
+  user-select: none;
+  pointer-events: none;
 }

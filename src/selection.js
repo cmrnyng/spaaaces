@@ -20,11 +20,16 @@ export const useSelect = create(set => ({
         };
       }
     }),
+  selectedItem: null,
   items: [],
   addItems: item =>
     set(state => ({
       items: [...state.items, item],
     })),
+  // deleteItems: item =>
+  //   set(state => ({
+  //     items: state.items.filter(i => i.id !== item.id),
+  //   })),
 }));
 
 // Tex is of the form { id: texture }

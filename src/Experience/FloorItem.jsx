@@ -1,44 +1,57 @@
 import { useRef, useEffect } from "react";
-import { useGLTF, DragControls, TransformControls, PivotControls } from "@react-three/drei";
+import { useGLTF, DragControls, PivotControls } from "@react-three/drei";
 
 export const FloorItem = ({ url, position }) => {
-	const { scene } = useGLTF(url);
-	const obj = useRef();
-	const pivot = useRef();
+  const { scene } = useGLTF(url);
+  console.log(scene);
+  const obj = useRef();
+  const pivot = useRef();
+  let toggle = true;
 
-	const handleHover = hover => {
-		if (pivot.current) {
-			pivot.current.children[0].visible = hover;
-		}
-	};
+  const handleClick = e => {
+    e.stopPropagation();
+    if (e.delta > 5) return;
+  };
 
-	const toggleRotate = () => {
-		if (pivot.current) {
-			pivot.current.children[0].visible = !pivot.current.children[0].visible;
-		}
-	};
+  const toggleRotate = () => {
+    if (pivot.current) {
+      pivot.current.children[0].visible = false;
+    }
+  };
 
-	useEffect(() => {
-		const currentPivot = pivot.current;
-		if (currentPivot) {
-			currentPivot.children[0].visible = false;
-		}
-	}, []);
+  // const changeTexture = e => {
+  // 	if (e.delta > 5) return;
+  // 	e.stopPropagation();
+  // 	useSelect.setState({ selection: { obj: e.eventObject, len, height } });
+  // };
 
-	return (
-		<>
-			<DragControls axisLock="y">
-				<PivotControls
-					ref={pivot}
-					disableScaling
-					disableSliders
-					disableAxes
-					activeAxes={[true, false, true]}
-					depthTest={false}
-				>
-					<primitive ref={obj} object={scene} position={position} onClick={() => toggleRotate()} />
-				</PivotControls>
-			</DragControls>
-		</>
-	);
+  useEffect(() => {
+    const currentPivot = pivot.current;
+    if (currentPivot) {
+      currentPivot.children[0].children[0].children[0].visible = true;
+    }
+  }, []);
+
+  return (
+    <>
+      <DragControls axisLock="y">
+        <PivotControls
+          ref={pivot}
+          disableScaling
+          disableSliders
+          disableAxes
+          activeAxes={[true, false, true]}
+          depthTest={false}
+        >
+          <primitive
+            ref={obj}
+            object={scene}
+            position={position}
+            onClick={handleClick}
+            onPointerDown={toggleRotate}
+          />
+        </PivotControls>
+      </DragControls>
+    </>
+  );
 };
