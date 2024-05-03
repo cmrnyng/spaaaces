@@ -1,4 +1,4 @@
-# Spaaaces
+# Spaaaces (WIP)
 
 Spaaaces is an interactive 3D interior design web app built using React and Three.js, and React Three Fiber.\
 You can view the latest deployment at [spaaaces.vercel.app](https://spaaaces.vercel.app).
