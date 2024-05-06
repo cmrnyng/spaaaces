@@ -11,8 +11,21 @@ export const Furniture = () => {
 	return (
 		<>
 			{items.map((item, i) => (
-				<Suspense key={i} fallback={<Placeholder position={[centre.x / 40, 0.5, centre.y / 40]} />}>
-					<FloorItem key={i} url={item} position={[centre.x / 40, 0, centre.y / 40]} />
+				<Suspense
+					key={i}
+					fallback={
+						<Placeholder
+							position={item.position ? item.position : [centre.x / 40, 0.5, centre.y / 40]}
+						/>
+					}
+				>
+					<FloorItem
+						key={i}
+						url={item.url}
+						uuid={item.uuid}
+						position={item.position ? item.position : [centre.x / 40, 0, centre.y / 40]}
+						quaternion={item.quaternion}
+					/>
 				</Suspense>
 			))}
 		</>
