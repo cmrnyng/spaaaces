@@ -21,6 +21,8 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
   const canvasRef = useRef();
   const contextRef = useRef();
 
+  const items = useSelect.getState().items;
+
   const setElements = useStore(state => state.setElements);
   const walls = useRef(useStore.getState().walls);
   const corners = useRef(useStore.getState().corners);
@@ -74,7 +76,7 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
   const panOffset = useRef(panCentre());
   const mousePosOnClick = useRef({ x: 0, y: 0 });
 
-  const [mode, setMode] = useState("draw"); // Fine
+  const [mode, setMode] = useState("draw");
   const action = useRef("none");
   const preview = useRef({});
   const activeElement = useRef();
@@ -94,6 +96,10 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
         lastCorner.current = {};
         draw();
       }
+    }
+
+    if (e.key === "o") {
+      console.log(items);
     }
 
     if (e.key === "1") changeMode("move");
