@@ -1,13 +1,25 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { useApp } from "./AppContext";
 import menuIcon from "./assets/menuicon.svg";
 import switchIcon from "./assets/switch2.svg";
 
-export default function UI({ toggleView }) {
+export default function UI({ toggleView, designView }) {
   const [dropdown, setDropdown] = useState(false);
+
+  const { updateItemPositions } = useApp();
+
+  const handleButtonClick = () => {
+    if (designView) {
+      if (updateItemPositions) {
+        updateItemPositions();
+      }
+    }
+    toggleView();
+  };
+
   return (
     <>
-      <button className="switch-btn" onClick={toggleView}>
+      <button className="switch-btn" onClick={handleButtonClick}>
         <img src={switchIcon} className="icon switch" />
       </button>
       <div className="menu" style={{ height: dropdown ? "185px" : "40px" }}>

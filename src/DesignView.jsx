@@ -10,7 +10,7 @@ import addIcon from "./assets/add.svg";
 const ItemsMemo = memo(Items);
 const ExperienceMemo = memo(Experience);
 
-export const DesignView = ({ setItemsUpdated }) => {
+export const DesignView = () => {
   console.log("designview render");
   const [itemMenu, setItemMenu] = useState(false);
   const wrapper = useRef();
@@ -49,7 +49,8 @@ export const DesignView = ({ setItemsUpdated }) => {
         onClick={handleCanvasClick}
       >
         {/* <Suspense fallback={null}> */}
-        <ExperienceMemo setItemsUpdated={setItemsUpdated} />
+        <ExperienceMemo />
+        {/* <Experience /> */}
         {/* </Suspense> */}
       </Canvas>
       <div style={{ backgroundColor: "red", width: "50px", height: "50px" }} />

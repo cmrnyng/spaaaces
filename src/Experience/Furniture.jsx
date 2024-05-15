@@ -4,7 +4,7 @@ import { useSelect } from "../selection.js";
 import { useStore } from "../store.js";
 import { Suspense } from "react";
 
-export const Furniture = ({ setItemsUpdated }) => {
+export const Furniture = () => {
   const { centre } = useStore.getState().origin;
   const items = useSelect(state => state.items);
   console.log(items);
@@ -25,7 +25,6 @@ export const Furniture = ({ setItemsUpdated }) => {
             uuid={item.uuid}
             position={item.position ? item.position : [centre.x / 40, 0, centre.y / 40]}
             quaternion={item.quaternion}
-            setItemsUpdated={setItemsUpdated}
           />
         </Suspense>
       ))}

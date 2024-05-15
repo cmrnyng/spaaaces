@@ -1,17 +1,14 @@
-import { useRef, useEffect, useMemo } from "react";
-import { useGLTF, DragControls, PivotControls, Clone } from "@react-three/drei";
-import { useSelect } from "../selection";
-import * as THREE from "three";
+import { useRef, useMemo } from "react";
+import { useGLTF, DragControls, PivotControls } from "@react-three/drei";
 
-export const FloorItem = ({ url, uuid, position, quaternion, setItemsUpdated }) => {
+export const FloorItem = ({ url, uuid, position, quaternion }) => {
   const { scene } = useGLTF(url);
   const copiedScene = useMemo(() => scene.clone(), [scene]);
   copiedScene.uuid = uuid;
+  copiedScene.name = "Furniture";
   const obj = useRef();
   const pivot = useRef();
   let toggle = true;
-
-  const updateItem = useSelect(state => state.updateItem);
 
   const handleClick = e => {
     e.stopPropagation();
@@ -27,50 +24,6 @@ export const FloorItem = ({ url, uuid, position, quaternion, setItemsUpdated }) 
     }
   };
 
-  // const changeTexture = e => {
-  // 	if (e.delta > 5) return;
-  // 	e.stopPropagation();
-  // 	useSelect.setState({ selection: { obj: e.eventObject, len, height } });
-  // };
-
-  useEffect(() => {
-    const currentPivot = pivot.current;
-    if (currentPivot) {
-      currentPivot.children[0].children[0].children[0].visible = true;
-      currentPivot.children[0].visible = true;
-    }
-
-    const handleKeydown = e => {
-      if (e.key === "l") {
-        const worldPosition = new THREE.Vector3();
-        const worldQuaternion = new THREE.Quaternion();
-        copiedScene.getWorldPosition(worldPosition);
-        copiedScene.getWorldQuaternion(worldQuaternion);
-        console.log(copiedScene);
-        console.log(worldPosition);
-
-        // updateItem(uuid, worldPosition, worldQuaternion);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeydown);
-
-    return () => {
-      const worldPosition = new THREE.Vector3();
-      const worldQuaternion = new THREE.Quaternion();
-      copiedScene.getWorldPosition(worldPosition);
-      copiedScene.getWorldQuaternion(worldQuaternion);
-
-      console.log(worldPosition);
-      console.log(worldQuaternion);
-
-      updateItem(uuid, worldPosition, worldQuaternion);
-      setItemsUpdated(true);
-
-      window.removeEventListener("keydown", handleKeydown);
-    };
-  }, []);
-
   return (
     <>
       <DragControls axisLock="y">
@@ -81,6 +34,7 @@ export const FloorItem = ({ url, uuid, position, quaternion, setItemsUpdated }) 
           disableAxes
           activeAxes={[true, false, true]}
           depthTest={false}
+          anchor={[0, -1, 0]}
         >
           <primitive
             ref={obj}

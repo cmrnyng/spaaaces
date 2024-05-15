@@ -1,22 +1,13 @@
-import {
-  OrbitControls,
-  Grid,
-  useHelper,
-  useTexture,
-  Select,
-  Edges,
-  Box,
-  PivotControls,
-} from "@react-three/drei";
+import { OrbitControls, Grid } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useRef, useEffect, Suspense } from "react";
 import { useStore } from "../store.js";
 import { Perf } from "r3f-perf";
+import { useApp } from "../AppContext.jsx";
 import { Room } from "./Room.jsx";
 import { OrphanWall } from "./OrphanWall.jsx";
 import { PopupMenu } from "./PopupMenu.jsx";
 import * as THREE from "three";
-import { FloorItem } from "./FloorItem.jsx";
 import { Furniture } from "./Furniture.jsx";
 import { useSelect } from "../selection.js";
 
@@ -27,8 +18,30 @@ mainLoadingManager.onProgress = (itemUrl, itemsLoaded, itemsTotal) => {
   console.log(`Loading texture ${itemUrl} | ${itemsLoaded} / ${itemsTotal}`);
 };
 
-export const Experience = ({ setItemsUpdated }) => {
+export const Experience = () => {
   console.log("experience render");
+
+  const { registerUpdateFunction } = useApp();
+  const updateItem = useSelect(state => state.updateItem);
+
+  const { scene } = useThree();
+
+  useEffect(() => {
+    const updateItemPositions = () => {
+      scene.traverse(child => {
+        if (child.name === "Furniture") {
+          const worldPosition = new THREE.Vector3();
+          const worldQuaternion = new THREE.Quaternion();
+          child.getWorldPosition(worldPosition);
+          child.getWorldQuaternion(worldQuaternion);
+          updateItem(child.uuid, worldPosition, worldQuaternion);
+        }
+      });
+    };
+
+    registerUpdateFunction(updateItemPositions);
+  }, [registerUpdateFunction]);
+
   const wallIds = useStore.getState().walls;
   const unconvertedCorners = useStore.getState().corners;
   const roomIds = useStore.getState().rooms;
@@ -109,7 +122,7 @@ export const Experience = ({ setItemsUpdated }) => {
       {/* Prevent re-renders from this somehow (maybe have a single component
           for all models)
       */}
-      <Furniture setItemsUpdated={setItemsUpdated} />
+      <Furniture />
 
       {/* <PivotControls
 				disableScaling
