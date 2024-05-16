@@ -424,3 +424,40 @@ view-hidden {
   user-select: none;
   pointer-events: none;
 }
+
+.furniture-popup {
+  font-family: Helvetica, Arial;
+  position: relative;
+  background: #0000006b;
+  width: fit-content;
+  height: fit-content;
+  padding: 10px;
+  white-space: nowrap;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+  overflow-y: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  user-select: none;
+  box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+
+.popup-icon {
+  width: 40px;
+  height: 40px;
+  vertical-align: middle;
+  user-select: none;
+  /* pointer-events: none; */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; /* Safari */
+  -webkit-user-select: none; /* Chrome */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+}

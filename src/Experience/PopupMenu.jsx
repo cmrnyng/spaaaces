@@ -1,10 +1,12 @@
 import { Html } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelect } from "../selection";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import wallTex from "../data/wallTextures.json";
 import floorTex from "../data/floorTextures.json";
+import binIcon from "../assets/binIcon1.svg";
 import { useThree } from "@react-three/fiber";
+import { FurniturePopup } from "./FurniturePopup.jsx";
 import * as THREE from "three";
 
 export const PopupMenu = () => {
@@ -14,6 +16,7 @@ export const PopupMenu = () => {
   const globalTextures = useSelect.getState().textures;
   const prevSel = useRef(null);
   const popup = useRef();
+  const htmlRef = useRef();
 
   const mouseDown = useRef(false);
   const mouseMoved = useRef(false);
@@ -21,6 +24,14 @@ export const PopupMenu = () => {
   const scrollLeft = useRef();
 
   const { controls } = useThree();
+
+  // useEffect(() => {
+  //   if (!sel) return;
+  //   if (sel.obj.userData.type === "furniture" && htmlRef.current) {
+  //     console.log(htmlRef.current);
+  //     sel.obj.add(htmlRef.current);
+  //   }
+  // }, [sel]);
 
   let pos;
   let textures;
@@ -40,6 +51,9 @@ export const PopupMenu = () => {
     );
     textures = floorTex;
     prevSel.current = sel;
+  } else if (obj.userData.type === "furniture") {
+    pos = sel.position;
+    prevSel.current = sel; // Refactor this
   }
 
   const loadingManager = new THREE.LoadingManager(
@@ -169,7 +183,7 @@ export const PopupMenu = () => {
 
   return (
     <>
-      {sel && (
+      {sel && obj.userData.type !== "furniture" ? (
         <Html position={[pos.x, pos.y + 1, pos.z]} center>
           <div
             className="popup"
@@ -209,7 +223,9 @@ export const PopupMenu = () => {
             ))}
           </div>
         </Html>
-      )}
+      ) : sel && obj.userData.type === "furniture" ? (
+        <FurniturePopup obj={sel.obj} />
+      ) : null}
     </>
   );
 };

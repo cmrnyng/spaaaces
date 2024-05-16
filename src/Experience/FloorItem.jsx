@@ -1,5 +1,7 @@
 import { useRef, useMemo } from "react";
-import { useGLTF, DragControls, PivotControls } from "@react-three/drei";
+import { useGLTF, DragControls, PivotControls, Html } from "@react-three/drei";
+import { useSelect } from "../selection";
+import * as THREE from "three";
 
 export const FloorItem = ({ url, uuid, position, quaternion }) => {
   const { scene } = useGLTF(url);
@@ -13,6 +15,10 @@ export const FloorItem = ({ url, uuid, position, quaternion }) => {
   const handleClick = e => {
     e.stopPropagation();
     if (e.delta > 5) return;
+    const worldPosition = new THREE.Vector3();
+    console.log(e.eventObject);
+    e.eventObject.getWorldPosition(worldPosition);
+    useSelect.setState({ selection: { obj: e.eventObject, position: worldPosition } });
     toggleRotate();
   };
 
@@ -42,6 +48,7 @@ export const FloorItem = ({ url, uuid, position, quaternion }) => {
             position={position}
             quaternion={quaternion}
             onClick={handleClick}
+            userData={{ uuid, type: "furniture" }}
             // onPointerDown={e => e.stopPropagation()}
           />
         </PivotControls>
