@@ -41,8 +41,8 @@ export const useSelect = create(set => ({
     set(state => ({
       items: [...state.items, item],
     })),
-  // deleteItems: item =>
-  //   set(state => ({
-  //     items: state.items.filter(i => i.id !== item.id),
-  //   })),
+  deleteItems: uuidToDelete =>
+    set(state => ({
+      items: state.items.filter(i => i.uuid !== uuidToDelete),
+    })),
 }));

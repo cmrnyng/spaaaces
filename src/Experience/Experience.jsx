@@ -1,7 +1,7 @@
 import { OrbitControls, Grid } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useRef, useEffect, Suspense } from "react";
-import { useStore } from "../store.js";
+import { useRoomData } from "../store.js";
 import { Perf } from "r3f-perf";
 import { useApp } from "../AppContext.jsx";
 import { Room } from "./Room.jsx";
@@ -38,14 +38,28 @@ export const Experience = () => {
         }
       });
     };
-
     registerUpdateFunction(updateItemPositions);
   }, [registerUpdateFunction]);
 
-  const wallIds = useStore.getState().walls;
-  const unconvertedCorners = useStore.getState().corners;
-  const roomIds = useStore.getState().rooms;
-  const { centre, size } = useStore.getState().origin;
+  // Temp debugging useEffect
+  useEffect(() => {
+    const handleKeydown = e => {
+      if (e.key === "u") {
+        // console.log(scene);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  const wallIds = useRoomData.getState().walls;
+  const unconvertedCorners = useRoomData.getState().corners;
+  const roomIds = useRoomData.getState().rooms;
+  const { centre, size } = useRoomData.getState().origin;
 
   const dirLight = useRef();
   // useHelper(dirLight, THREE.DirectionalLightHelper, 3, "red");
@@ -101,7 +115,7 @@ export const Experience = () => {
         panSpeed={0.7}
         rotateSpeed={0.7}
       />
-      {/* <axesHelper args={[2, 2, 2]} /> */}
+      <axesHelper args={[1, 1, 1]} />
       <Grid position={[0, -0.01, 0]} args={gridSize} {...gridConfig} />
       <directionalLight ref={dirLight} position={[0, 20, 0]} />
       <ambientLight intensity={1.3} />

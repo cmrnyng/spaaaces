@@ -1,5 +1,5 @@
-import { useRef, useMemo } from "react";
-import { useGLTF, DragControls, PivotControls, Html } from "@react-three/drei";
+import { useRef, useMemo, useEffect } from "react";
+import { useGLTF, DragControls, PivotControls } from "@react-three/drei";
 import { useSelect } from "../selection";
 import * as THREE from "three";
 
@@ -12,13 +12,17 @@ export const FloorItem = ({ url, uuid, position, quaternion }) => {
   const pivot = useRef();
   let toggle = true;
 
+  useEffect(() => {
+    if (obj.current) {
+      obj.current.position.copy(position);
+      obj.current.quaternion.copy(quaternion);
+    }
+  }, []);
+
   const handleClick = e => {
     e.stopPropagation();
     if (e.delta > 5) return;
-    const worldPosition = new THREE.Vector3();
-    console.log(e.eventObject);
-    e.eventObject.getWorldPosition(worldPosition);
-    useSelect.setState({ selection: { obj: e.eventObject, position: worldPosition } });
+    useSelect.setState({ selection: { obj: e.eventObject } });
     toggleRotate();
   };
 
@@ -30,11 +34,16 @@ export const FloorItem = ({ url, uuid, position, quaternion }) => {
     }
   };
 
+  const handleHover = e => {
+    document.body.style.cursor = e ? "pointer" : "auto";
+  };
+
   return (
     <>
-      <DragControls axisLock="y">
+      <DragControls axisLock="y" onHover={handleHover} name="DragControls">
         <PivotControls
           ref={pivot}
+          name="PivotControls"
           disableScaling
           disableSliders
           disableAxes
@@ -45,8 +54,6 @@ export const FloorItem = ({ url, uuid, position, quaternion }) => {
           <primitive
             ref={obj}
             object={copiedScene}
-            position={position}
-            quaternion={quaternion}
             onClick={handleClick}
             userData={{ uuid, type: "furniture" }}
             // onPointerDown={e => e.stopPropagation()}

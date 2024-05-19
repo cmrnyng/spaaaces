@@ -291,6 +291,14 @@ export const Wall = ({ edge, orphan, mainLoadingManager }) => {
     useSelect.setState({ selection: { obj: e.eventObject, len, height } });
   };
 
+  // const handlePointerEnter = e => {
+  //   document.body.style.cursor = "pointer";
+  // };
+
+  // const handlePointerLeave = e => {
+  //   document.body.style.cursor = "auto";
+  // };
+
   if (!isReady) return;
 
   return (
@@ -299,8 +307,11 @@ export const Wall = ({ edge, orphan, mainLoadingManager }) => {
         geometry={geom}
         material={materials}
         userData={{ id, type: "wall", side }}
+        name="Wall"
         ref={wallRef}
         onClick={changeTexture}
+        // onPointerEnter={handlePointerEnter}
+        // onPointerLeave={handlePointerLeave}
       />
     </>
   );

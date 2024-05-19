@@ -1,7 +1,6 @@
 import { Icosahedron } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import { useStore } from "../store";
 
 export const Placeholder = ({ position }) => {
   const placeholder = useRef();

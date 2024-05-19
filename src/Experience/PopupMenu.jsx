@@ -42,7 +42,6 @@ export const PopupMenu = () => {
   if (obj.userData.type === "wall") {
     pos = obj.geometry.boundingSphere.center;
     textures = wallTex;
-    prevSel.current = sel;
   } else if (obj.userData.type === "floor") {
     pos = new THREE.Vector3(
       obj.geometry.boundingSphere.center.x,
@@ -50,11 +49,8 @@ export const PopupMenu = () => {
       obj.geometry.boundingSphere.center.y
     );
     textures = floorTex;
-    prevSel.current = sel;
-  } else if (obj.userData.type === "furniture") {
-    pos = sel.position;
-    prevSel.current = sel; // Refactor this
   }
+  prevSel.current = sel;
 
   const loadingManager = new THREE.LoadingManager(
     // Loaded

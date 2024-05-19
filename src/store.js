@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export const useStore = create(set => ({
+export const useRoomData = create(set => ({
   corners: [],
   walls: [],
   rooms: [],
@@ -9,7 +9,7 @@ export const useStore = create(set => ({
 }));
 
 // Store for testing
-// export const useStore = create(set => ({
+// export const useRoomData = create(set => ({
 // 	corners: [
 // 		{ x: 475, y: 207, id: "ace2c35f-7f1d-4cac-9b40-025462e9bedc" },
 // 		{ x: 475, y: 337, id: "af2861b2-0cfb-4f36-89d1-3cdc7bbae528" },

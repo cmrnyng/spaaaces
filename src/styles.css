@@ -202,7 +202,7 @@ view-hidden {
   flex: none;
 }
 
-.menu-btn:active > .icon {
+.menu-btn:active {
   transform: translateY(1px);
 }
 
@@ -226,18 +226,27 @@ view-hidden {
 }
 
 .menu-contents {
+  position: absolute;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: start;
   gap: 15px;
-  margin-bottom: 10px;
+  top: 0;
+  right: 0;
+  margin-top: 10px;
+  margin-right: 15px;
+  z-index: 998;
 }
 
 .menu-btn {
-  background-color: transparent;
+  background-color: #ffffff;
+  box-shadow: 0px 1px 3px rgba(181, 181, 181, 0.4);
   border: none;
-  font-family: "Satoshi";
-  font-weight: 400;
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 10px 0 10px;
+  font-family: "Satoshi", sans-serif;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -254,6 +263,10 @@ view-hidden {
 
 .switch-btn:hover .switch {
   transform: rotate(360deg);
+}
+
+.switch-btn:active {
+  transform: translateY(1px);
 }
 
 .designview-btns {
@@ -451,6 +464,7 @@ view-hidden {
 .popup-icon {
   width: 40px;
   height: 40px;
+  border-radius: 50%;
   vertical-align: middle;
   user-select: none;
   /* pointer-events: none; */
@@ -460,4 +474,50 @@ view-hidden {
   -webkit-user-select: none; /* Chrome */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.save-dropdown {
+  position: absolute;
+  top: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  padding: 5px 10px 10px 10px;
+  height: fit-content;
+  gap: 4px;
+  width: 100%;
+  background-color: white;
+  border-radius: 10px;
+  font-family: "Satoshi", sans-serif;
+  font-weight: 500;
+  box-shadow: 0px 1px 3px rgba(181, 181, 181, 0.4);
+}
+
+.save-dropdown label {
+  font-size: 0.9em;
+}
+
+.save-dropdown input {
+  font-family: "Satoshi", sans-serif;
+  width: 100%;
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+.input-download-btn-container {
+  /* border: 1px solid red; */
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.download-btn {
+  background-color: white;
+  border: none;
+  cursor: pointer;
 }

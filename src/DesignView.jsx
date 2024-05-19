@@ -1,9 +1,10 @@
 import { Experience } from "./Experience/Experience.jsx";
 import { Canvas } from "@react-three/fiber";
-import { useStore } from "./store.js";
 import { useSelect } from "./selection.js";
 import { useRef, useState, useEffect, memo } from "react";
-import { Loader } from "./Loader.jsx";
+import { SaveButton } from "./SaveButton.jsx";
+import { LoadButton } from "./LoadButton.jsx";
+import { NewButton } from "./NewButton.jsx";
 import { Items } from "./Experience/Items.jsx";
 import addIcon from "./assets/add.svg";
 
@@ -53,11 +54,15 @@ export const DesignView = () => {
         {/* <Experience /> */}
         {/* </Suspense> */}
       </Canvas>
-      <div style={{ backgroundColor: "red", width: "50px", height: "50px" }} />
       <div className="designview-btns">
         <button className="designview-btn" onClick={() => setItemMenu(!itemMenu)}>
           <img src={addIcon} className="icon" />
         </button>
+      </div>
+      <div className="menu-contents">
+        <SaveButton />
+        <LoadButton />
+        <NewButton />
       </div>
       <div ref={wrapper} className={`content-wrapper ${itemMenu ? "show" : ""}`}>
         <div className="content">

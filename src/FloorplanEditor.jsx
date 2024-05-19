@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useStore } from "./store.js";
+import { useRoomData } from "./store.js";
 import { useSelect } from "./selection.js";
 import { v4 as uuidv4 } from "uuid";
 import * as utils from "./utils.js";
@@ -23,10 +23,10 @@ export const FloorplanEditor = ({ setStoreUpdated }) => {
 
   const items = useSelect.getState().items;
 
-  const setElements = useStore(state => state.setElements);
-  const walls = useRef(useStore.getState().walls);
-  const corners = useRef(useStore.getState().corners);
-  const rooms = useRef(useStore.getState().rooms);
+  const setElements = useRoomData(state => state.setElements);
+  const walls = useRef(useRoomData.getState().walls);
+  const corners = useRef(useRoomData.getState().corners);
+  const rooms = useRef(useRoomData.getState().rooms);
   const lastCorner = useRef({});
 
   // Centre the view
